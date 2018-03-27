@@ -15,7 +15,7 @@ import java.util.List;
 @Named
 @Singleton
 public class MultiSelectListValidator implements BaseTypeValidator {
-    private static final String TYPE_ID = "MultiSelectList";
+    static final String TYPE_ID = "MultiSelectList";
 
     @Override
     public BaseType getType() {

@@ -3,19 +3,20 @@ package uk.gov.hmcts.ccd.domain.types;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import org.hamcrest.Matchers;
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.Mock;
+import org.mockito.MockitoAnnotations;
+import uk.gov.hmcts.ccd.data.definition.CaseDefinitionRepository;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
-import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
-import uk.gov.hmcts.ccd.domain.model.definition.FixedListItem;
+import uk.gov.hmcts.ccd.test.CaseFieldBuilder;
 
-import java.math.BigDecimal;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 import static org.hamcrest.Matchers.*;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertThat;
+import static org.mockito.Mockito.doReturn;
 
 public class MultiSelectListValidatorTest {
 
@@ -26,27 +27,30 @@ public class MultiSelectListValidatorTest {
     private static final String OPTION_3 = "Option3";
     private static final String OPTION_UNKNOWN = "OptionUnknown";
 
+    @Mock
+    private BaseType multiSelectBaseType;
+
+    @Mock
+    private CaseDefinitionRepository definitionRepository;
+
     private CaseField caseField;
-    private FieldType fieldType;
 
     private MultiSelectListValidator validator;
 
     @Before
-    public void setUp() throws Exception {
-        final FixedListItem option1 = new FixedListItem();
-        option1.setCode(OPTION_1);
-        final FixedListItem option2 = new FixedListItem();
-        option2.setCode(OPTION_2);
-        final FixedListItem option3 = new FixedListItem();
-        option3.setCode(OPTION_3);
+    public void setUp() {
+        MockitoAnnotations.initMocks(this);
 
-        fieldType = new FieldType();
-        fieldType.setFixedListItems(Arrays.asList(option1, option2, option3));
+        doReturn(Collections.emptyList()).when(definitionRepository).getBaseTypes();
+        BaseType.setCaseDefinitionRepository(definitionRepository);
+        BaseType.initialise();
 
-        caseField = new CaseField();
-        caseField.setFieldType(fieldType);
+        doReturn(MultiSelectListValidator.TYPE_ID).when(multiSelectBaseType).getType();
+        BaseType.register(multiSelectBaseType);
 
         validator = new MultiSelectListValidator();
+
+        caseField = caseField().build();
     }
 
     @Test
@@ -71,8 +75,8 @@ public class MultiSelectListValidatorTest {
     @Test
     public void validate_shouldBeValidWhenArrayOfValidValues() {
         final ArrayNode values = NODE_FACTORY.arrayNode()
-            .add(OPTION_1)
-            .add(OPTION_2);
+                                             .add(OPTION_1)
+                                             .add(OPTION_2);
 
         final List<ValidationResult> results = validator.validate(FIELD_ID, values, caseField);
 
@@ -89,10 +93,10 @@ public class MultiSelectListValidatorTest {
     }
 
     @Test
-    public void validate_shouldNOTBeValidWhenContainsUnknwonValue() {
+    public void validate_shouldNOTBeValidWhenContainsUnknownValue() {
         final ArrayNode values = NODE_FACTORY.arrayNode()
-            .add(OPTION_1)
-            .add(OPTION_UNKNOWN);
+                                             .add(OPTION_1)
+                                             .add(OPTION_UNKNOWN);
 
         final List<ValidationResult> results = validator.validate(FIELD_ID, values, caseField);
 
@@ -102,8 +106,8 @@ public class MultiSelectListValidatorTest {
     @Test
     public void validate_shouldNOTBeValidWhenContainsDuplicateValues() {
         final ArrayNode values = NODE_FACTORY.arrayNode()
-            .add(OPTION_1)
-            .add(OPTION_1);
+                                             .add(OPTION_1)
+                                             .add(OPTION_1);
 
         final List<ValidationResult> results = validator.validate(FIELD_ID, values, caseField);
 
@@ -112,10 +116,10 @@ public class MultiSelectListValidatorTest {
 
     @Test
     public void validate_shouldNOTBeValidWhenBelowMin() {
-        fieldType.setMin(new BigDecimal(2));
+        final CaseField caseField = caseField().withMin(2).build();
 
         final ArrayNode values = NODE_FACTORY.arrayNode()
-            .add(OPTION_1);
+                                             .add(OPTION_1);
 
         final List<ValidationResult> results = validator.validate(FIELD_ID, values, caseField);
 
@@ -125,11 +129,11 @@ public class MultiSelectListValidatorTest {
 
     @Test
     public void validate_shouldNOTBeValidWhenAboveMax() {
-        fieldType.setMax(new BigDecimal(1));
+        final CaseField caseField = caseField().withMax(1).build();
 
         final ArrayNode values = NODE_FACTORY.arrayNode()
-            .add(OPTION_1)
-            .add(OPTION_2);
+                                             .add(OPTION_1)
+                                             .add(OPTION_2);
 
         final List<ValidationResult> results = validator.validate(FIELD_ID, values, caseField);
 
@@ -137,4 +141,10 @@ public class MultiSelectListValidatorTest {
         assertThat(results.get(0).getErrorMessage(), equalTo("Cannot select more than 1 option"));
     }
 
+    private CaseFieldBuilder caseField() {
+        return new CaseFieldBuilder(FIELD_ID).withType(MultiSelectListValidator.TYPE_ID)
+                                             .withFixedListItem(OPTION_1)
+                                             .withFixedListItem(OPTION_2)
+                                             .withFixedListItem(OPTION_3);
+    }
 }
