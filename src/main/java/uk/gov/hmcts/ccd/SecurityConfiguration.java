@@ -43,19 +43,20 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(final HttpSecurity http) throws Exception {
-        // Don't erase user credentials as this is needed for the user profile
-        final ProviderManager authenticationManager = (ProviderManager) authenticationManager();
-        authenticationManager.setEraseCredentialsAfterAuthentication(false);
-        authCheckerFilter.setAuthenticationManager(authenticationManager());
-
-        http
-            .addFilter(authCheckerFilter)
-            .sessionManagement().sessionCreationPolicy(STATELESS).and()
-            .csrf().disable()
-            .formLogin().disable()
-            .logout().disable()
-            .authorizeRequests()
-            .anyRequest()
-            .authenticated();
+        // TODO - Rework Auth.
+//        // Don't erase user credentials as this is needed for the user profile
+//        final ProviderManager authenticationManager = (ProviderManager) authenticationManager();
+//        authenticationManager.setEraseCredentialsAfterAuthentication(false);
+//        authCheckerFilter.setAuthenticationManager(authenticationManager());
+//
+//        http
+//            .addFilter(authCheckerFilter)
+//            .sessionManagement().sessionCreationPolicy(STATELESS).and()
+//            .csrf().disable()
+//            .formLogin().disable()
+//            .logout().disable()
+//            .authorizeRequests()
+//            .anyRequest()
+//            .authenticated();
     }
 }
