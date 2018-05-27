@@ -9,6 +9,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.ccd.ICCDApplication;
 import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.data.casedetails.search.MetaData;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
@@ -49,6 +50,7 @@ public class QueryEndpoint {
     private final FindWorkbasketInputOperation findWorkbasketInputOperation;
     private final GetCaseTypesOperation getCaseTypesOperation;
     private final HashMap<String, Predicate<AccessControlList>> accessMap;
+    private final ICCDApplication application;
 
     @Inject
     public QueryEndpoint(final AuthorisedGetCaseViewOperation getCaseViewOperation,
@@ -57,7 +59,8 @@ public class QueryEndpoint {
                          final FieldMapSanitizeOperation fieldMapSanitizeOperation,
                          @Qualifier(AuthorisedFindSearchInputOperation.QUALIFIER) final FindSearchInputOperation findSearchInputOperation,
                          @Qualifier(AuthorisedFindWorkbasketInputOperation.QUALIFIER) final FindWorkbasketInputOperation findWorkbasketInputOperation,
-                         @Qualifier(AuthorisedGetCaseTypesOperation.QUALIFIER) final GetCaseTypesOperation getCaseTypesOperation) {
+                         @Qualifier(AuthorisedGetCaseTypesOperation.QUALIFIER) final GetCaseTypesOperation getCaseTypesOperation,
+                         ICCDApplication application) {
         this.getCaseViewOperation = getCaseViewOperation;
         this.getEventTriggerOperation = getEventTriggerOperation;
         this.searchQueryOperation = searchQueryOperation;
@@ -66,6 +69,7 @@ public class QueryEndpoint {
         this.findWorkbasketInputOperation = findWorkbasketInputOperation;
         this.getCaseTypesOperation = getCaseTypesOperation;
         this.accessMap = Maps.newHashMap();
+        this.application = application;
         accessMap.put("create", CAN_CREATE);
         accessMap.put("update", CAN_UPDATE);
         accessMap.put("read", CAN_READ);
@@ -83,8 +87,7 @@ public class QueryEndpoint {
         @ApiResponse(code = 404, message = "No case types found for given access criteria")})
     public List<CaseType> getCaseTypes(@PathVariable("jid") final String jurisdictionId,
                                        @RequestParam(value = "access", required = true) String access) {
-        return getCaseTypesOperation.execute(jurisdictionId, ofNullable(accessMap.get(access))
-            .orElseThrow(() -> new ResourceNotFoundException("No case types found")));
+        return application.getCaseTypes();
     }
 
     @Transactional
