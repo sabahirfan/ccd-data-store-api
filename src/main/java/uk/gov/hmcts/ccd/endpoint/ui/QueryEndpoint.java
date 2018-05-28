@@ -10,6 +10,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import uk.gov.hmcts.ccd.CoreCaseService;
 import uk.gov.hmcts.ccd.ICCDApplication;
 import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.data.casedetails.search.MetaData;
@@ -49,7 +50,7 @@ public class QueryEndpoint {
     private final FindWorkbasketInputOperation findWorkbasketInputOperation;
     private final GetCaseTypesOperation getCaseTypesOperation;
     private final HashMap<String, Predicate<AccessControlList>> accessMap;
-    private final ICCDApplication application;
+    private final CoreCaseService application;
 
     @Inject
     public QueryEndpoint(final AuthorisedGetCaseViewOperation getCaseViewOperation,
@@ -59,7 +60,7 @@ public class QueryEndpoint {
                          @Qualifier(AuthorisedFindSearchInputOperation.QUALIFIER) final FindSearchInputOperation findSearchInputOperation,
                          @Qualifier(AuthorisedFindWorkbasketInputOperation.QUALIFIER) final FindWorkbasketInputOperation findWorkbasketInputOperation,
                          @Qualifier(AuthorisedGetCaseTypesOperation.QUALIFIER) final GetCaseTypesOperation getCaseTypesOperation,
-                         ICCDApplication application) {
+                         CoreCaseService application) {
         this.getCaseViewOperation = getCaseViewOperation;
         this.getEventTriggerOperation = getEventTriggerOperation;
         this.searchQueryOperation = searchQueryOperation;
@@ -109,7 +110,7 @@ public class QueryEndpoint {
 
         Map<String, String> sanitized = fieldMapSanitizeOperation.execute(params);
 
-        return application.searchNew(view, metadata, sanitized);
+        throw new RuntimeException();
     }
 
     private Optional<String> param(Map<String, String> queryParameters, String param) {
