@@ -17,14 +17,13 @@ import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
 import uk.gov.hmcts.ccd.domain.model.definition.AccessControlList;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
-import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
-import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
-import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
+import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
+import uk.gov.hmcts.ccd.domain.model.search.*;
 import uk.gov.hmcts.ccd.domain.service.aggregated.*;
-import uk.gov.hmcts.ccd.endpoint.exceptions.ResourceNotFoundException;
 
 import javax.inject.Inject;
 import javax.transaction.Transactional;
+import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.HashMap;
@@ -33,7 +32,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
-import static java.util.Optional.ofNullable;
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.*;
 
 @RestController
@@ -88,7 +86,7 @@ public class QueryEndpoint {
         @ApiResponse(code = 404, message = "No case types found for given access criteria")})
     public List<CaseType> getCaseTypes(@PathVariable("jid") final String jurisdictionId,
                                        @RequestParam(value = "access", required = true) String access) {
-        return Lists.newArrayList(application.getCaseTypes());
+        return Lists.newArrayList(application.getCaseType());
     }
 
     @Transactional
@@ -99,7 +97,7 @@ public class QueryEndpoint {
         @ApiResponse(code = 412, message = "Mismatch between case type and workbasket definitions")})
     public SearchResultView searchNew(@PathVariable("jid") final String jurisdictionId,
                                       @PathVariable("ctid") final String caseTypeId,
-                                      @RequestParam java.util.Map<String, String> params) {
+                                      @RequestParam java.util.Map<String, String> params) throws IOException {
         String view = params.get("view");
         MetaData metadata = new MetaData(caseTypeId, jurisdictionId);
         metadata.setState(param(params, MetaData.STATE_PARAM));
@@ -111,7 +109,7 @@ public class QueryEndpoint {
 
         Map<String, String> sanitized = fieldMapSanitizeOperation.execute(params);
 
-        return searchQueryOperation.execute(view, metadata, sanitized);
+        return application.searchNew(view, metadata, sanitized);
     }
 
     private Optional<String> param(Map<String, String> queryParameters, String param) {
@@ -138,14 +136,24 @@ public class QueryEndpoint {
         @ApiResponse(code = 200, message = "Workbasket Input data found for the given case type and jurisdiction"),
         @ApiResponse(code = 404, message = "No Workbasket Input found for the given case type and jurisdiction")
     })
-    public WorkbasketInput[] findWorkbasketInputDetails(@PathVariable("uid") final Integer uid,
-                                                        @PathVariable("jid") final String jurisdictionId,
+    public WorkbasketInput[] findWorkbasketInputDetails(@PathVariable("jid") final String jurisdictionId,
                                                         @PathVariable("ctid") final String caseTypeId) {
-        Instant start = Instant.now();
-        WorkbasketInput[] workbasketInputs = findWorkbasketInputOperation.execute(jurisdictionId, caseTypeId, CAN_READ).toArray(new WorkbasketInput[0]);
-        final Duration between = Duration.between(start, Instant.now());
-        LOG.warn("findWorkbasketInputDetails has been completed in {} millisecs...", between.toMillis());
-        return workbasketInputs;
+        WorkbasketInput a = new WorkbasketInput();
+        Field field = new Field();
+        field.setId("foo");
+        FieldType type = new FieldType();
+        type.setType("string");
+        field.setType(type);
+        a.setField(field);
+        WorkbasketInput[] inputs = new WorkbasketInput[] {
+            a
+        };
+        return inputs;
+//        Instant start = Instant.now();
+//        WorkbasketInput[] workbasketInputs = findWorkbasketInputOperation.execute(jurisdictionId, caseTypeId, CAN_READ).toArray(new WorkbasketInput[0]);
+//        final Duration between = Duration.between(start, Instant.now());
+//        LOG.warn("findWorkbasketInputDetails has been completed in {} millisecs...", between.toMillis());
+//        return workbasketInputs;
     }
 
     @Transactional
