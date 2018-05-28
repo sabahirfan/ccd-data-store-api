@@ -139,22 +139,7 @@ public class QueryEndpoint {
     })
     public WorkbasketInput[] findWorkbasketInputDetails(@PathVariable("jid") final String jurisdictionId,
                                                         @PathVariable("ctid") final String caseTypeId) {
-        WorkbasketInput a = new WorkbasketInput();
-        Field field = new Field();
-        field.setId("foo");
-        FieldType type = new FieldType();
-        type.setType("string");
-        field.setType(type);
-        a.setField(field);
-        WorkbasketInput[] inputs = new WorkbasketInput[] {
-            a
-        };
-        return inputs;
-//        Instant start = Instant.now();
-//        WorkbasketInput[] workbasketInputs = findWorkbasketInputOperation.execute(jurisdictionId, caseTypeId, CAN_READ).toArray(new WorkbasketInput[0]);
-//        final Duration between = Duration.between(start, Instant.now());
-//        LOG.warn("findWorkbasketInputDetails has been completed in {} millisecs...", between.toMillis());
-//        return workbasketInputs;
+        return application.getWorkBasketInputs();
     }
 
     @Transactional
