@@ -4,8 +4,10 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import uk.gov.hmcts.ccd.ICCDApplication;
 import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
+import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 import uk.gov.hmcts.ccd.domain.service.aggregated.*;
 import uk.gov.hmcts.ccd.endpoint.exceptions.ResourceNotFoundException;
@@ -35,6 +37,8 @@ class QueryEndpointTest {
     private DefaultFindWorkbasketInputOperation findWorkbasketInputOperation;
     @Mock
     private GetCaseTypesOperation getCaseTypesOperation;
+    @Mock
+    private ICCDApplication application;
 
     private QueryEndpoint queryEndpoint;
 
@@ -48,7 +52,8 @@ class QueryEndpointTest {
             fieldMapSanitizerOperation,
             findSearchInputOperation,
             findWorkbasketInputOperation,
-            getCaseTypesOperation);
+            getCaseTypesOperation,
+                application);
     }
 
     @Test

@@ -1,5 +1,6 @@
 package uk.gov.hmcts.ccd.endpoint.ui;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
@@ -87,7 +88,7 @@ public class QueryEndpoint {
         @ApiResponse(code = 404, message = "No case types found for given access criteria")})
     public List<CaseType> getCaseTypes(@PathVariable("jid") final String jurisdictionId,
                                        @RequestParam(value = "access", required = true) String access) {
-        return application.getCaseTypes();
+        return Lists.newArrayList(application.getCaseTypes());
     }
 
     @Transactional

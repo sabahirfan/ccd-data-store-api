@@ -16,4 +16,5 @@ public class AliasWebConfig extends WebMvcConfigurerAdapter {
         registry.addViewController("/status/health").setViewName("forward:/health");
         registry.addViewController("/").setViewName("forward:/health");
     }
+
 }
