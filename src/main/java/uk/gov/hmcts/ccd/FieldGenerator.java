@@ -6,6 +6,7 @@ import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
@@ -17,24 +18,17 @@ public class FieldGenerator {
     );
     public static List<CaseField> generateFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
-        for (Method method : c.getDeclaredMethods()) {
-            if (Modifier.isPublic(method.getModifiers()) &&
-                    method.getName().startsWith("get")) {
-                Annotation a = method.getAnnotation(CaseListField.class);
-                Annotation[] ans = method.getAnnotations();
-                if (a != null) {
-                    CaseField field = new CaseField();
-                    String id = method.getName().replace("get", "");
-                    id = Character.toLowerCase(id.charAt(0)) + id.substring(1);
-                    field.setId(id);
-                    FieldType type = new FieldType();
-                    String typeId = typeMap.get(method.getReturnType().getSimpleName());
-                    type.setId(id);
-                    type.setType(typeId);
-                    field.setFieldType(type);
-                    field.setLabel("A label");
-                    result.add(field);
-                }
+        for (Field field : c.getDeclaredFields()) {
+            if (field.getAnnotation(CaseListField.class) != null) {
+                CaseField caseField = new CaseField();
+                caseField.setId(field.getName());
+                FieldType type = new FieldType();
+                String typeId = typeMap.get(field.getType().getSimpleName());
+                type.setId(typeId);
+                type.setType(typeId);
+                caseField.setFieldType(type);
+                caseField.setLabel("A label");
+                result.add(caseField);
             }
         }
         return result;
