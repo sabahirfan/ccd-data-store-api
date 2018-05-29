@@ -1,5 +1,6 @@
 package uk.gov.hmcts.ccd.domain.service.aggregated;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.hmcts.ccd.data.definition.UIDefinitionRepository;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
@@ -37,7 +38,7 @@ public class MergeDataToSearchResultOperation {
             .toArray(SearchResultViewColumn[]::new);
 
         final SearchResultViewItem[] viewItems = caseDetails.stream()
-            .map(caseData -> new SearchResultViewItem(caseData.getReference().toString(), caseData.getData()))
+            .map(caseData -> new SearchResultViewItem(caseData.getReference().toString(), new ObjectMapper().valueToTree(caseData.getData())))
             .toArray(SearchResultViewItem[]::new);
         return new SearchResultView(viewColumns, viewItems);
     }

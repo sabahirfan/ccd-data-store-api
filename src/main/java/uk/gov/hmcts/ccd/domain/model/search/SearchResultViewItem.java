@@ -9,14 +9,14 @@ public class SearchResultViewItem {
     @JsonProperty("case_id")
     private String caseId;
     @JsonProperty("case_fields")
-    private Map<String, JsonNode> caseFields;
+    private JsonNode caseFields;
 
     public SearchResultViewItem() {
         // Default constructor for JSON mapper
     }
 
     public SearchResultViewItem(final String caseId,
-                                final Map<String, JsonNode> caseFields) {
+                                final JsonNode caseFields) {
         this.caseId = caseId;
         this.caseFields = caseFields;
     }
@@ -25,7 +25,7 @@ public class SearchResultViewItem {
         return caseId;
     }
 
-    public Map<String, JsonNode> getCaseFields() {
+    public JsonNode getCaseFields() {
         return caseFields;
     }
 }

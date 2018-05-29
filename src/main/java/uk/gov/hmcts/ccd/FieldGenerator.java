@@ -13,7 +13,7 @@ public class FieldGenerator {
     public static List<CaseField> generateFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
         for (Method method : c.getDeclaredMethods()) {
-            if (Modifier.isPublic(method.getModifiers())) {
+            if (Modifier.isPublic(method.getModifiers()) && method.getName().startsWith("get")) {
                 CaseField field = new CaseField();
                 String id = method.getName().replace("get", "");
                 field.setId(id);

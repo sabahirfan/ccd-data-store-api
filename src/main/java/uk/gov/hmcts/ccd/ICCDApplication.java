@@ -10,9 +10,9 @@ import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import java.util.List;
 import java.util.Map;
 
-public interface ICCDApplication {
-    Class getCaseClass();
+public interface ICCDApplication<T extends ICase> {
+    Class<T> getCaseClass();
     List<CaseState> getStates();
-
-    SearchResultView searchNew(String view, MetaData metadata, Map<String, String> sanitized);
+    List<T> getCases();
+    void saveCase(T c);
 }

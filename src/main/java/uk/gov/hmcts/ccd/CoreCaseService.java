@@ -1,11 +1,16 @@
 package uk.gov.hmcts.ccd;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.ccd.domain.model.definition.*;
-import uk.gov.hmcts.ccd.domain.model.search.Field;
-import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
+import uk.gov.hmcts.ccd.domain.model.search.*;
+
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Stream;
 
 @Configuration
 @Service
@@ -21,6 +26,8 @@ public class CoreCaseService {
     public CaseType getCaseType() {
         CaseType result = new CaseType();
         result.setId(config.getCaseTypeId());
+        result.setName(config.getCaseTypeId());
+        result.setDescription(config.getCaseTypeId());
         result.setCaseFields(FieldGenerator.generateFields(application.getCaseClass()));
         result.setStates(application.getStates());
         return result;
@@ -35,5 +42,18 @@ public class CoreCaseService {
             i.setField(field);
             return i;
         }).toArray(WorkbasketInput[]::new);
+    }
+
+    public SearchResultView search() {
+        SearchResultViewColumn[] columns = FieldGenerator.generateFields(application.getCaseClass()).stream().map(x ->
+                new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getId(), 1)
+        ).toArray(SearchResultViewColumn[]::new);
+
+        ObjectMapper mapper = new ObjectMapper();
+        List<ICase> cases = application.getCases();
+        SearchResultViewItem[] items = cases.stream().map(x -> {
+           return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(x));
+        }).toArray(SearchResultViewItem[]::new);
+        return new SearchResultView(columns, items);
     }
 }
