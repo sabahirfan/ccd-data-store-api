@@ -27,7 +27,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 
 @Service
-class SubmitCaseTransaction {
+public class SubmitCaseTransaction {
 
     private final CaseDetailsRepository caseDetailsRepository;
     private final CaseAuditEventRepository caseAuditEventRepository;
