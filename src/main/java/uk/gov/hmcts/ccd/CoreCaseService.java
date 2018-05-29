@@ -30,8 +30,27 @@ public class CoreCaseService {
         result.setName(config.getCaseTypeId());
         result.setDescription(config.getCaseTypeId());
         result.setCaseFields(FieldGenerator.generateFields(application.getCaseClass()));
-        result.setStates(application.getStates());
-        result.setEvents(application.getEvents());
+        List<CaseState> states = Lists.newArrayList();
+        application.getStates().stream().forEach(x -> states.add(createState(x.toString())));
+        List<CaseEvent> events = Lists.newArrayList();
+        application.getEvents().stream().forEach(x -> events.add(createEvent(x.toString())));
+
+        result.setStates(states);
+        result.setEvents(events);
+        return result;
+    }
+
+    private CaseEvent createEvent(String s) {
+        CaseEvent event = new CaseEvent();
+        event.setId(s);
+        event.setName(s);
+        return event;
+    }
+
+    private CaseState createState(String name) {
+        CaseState result = new CaseState();
+        result.setId(name);
+        result.setName(name);
         return result;
     }
 
