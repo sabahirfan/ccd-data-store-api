@@ -30,6 +30,7 @@ public class CoreCaseService {
         result.setDescription(config.getCaseTypeId());
         result.setCaseFields(FieldGenerator.generateFields(application.getCaseClass()));
         result.setStates(application.getStates());
+        result.setEvents(application.getEvents());
         return result;
     }
 

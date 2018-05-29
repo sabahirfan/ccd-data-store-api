@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.ccd.AppInsights;
+import uk.gov.hmcts.ccd.CoreCaseService;
 import uk.gov.hmcts.ccd.data.casedetails.SecurityClassification;
 import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.data.casedetails.search.MetaData;
@@ -56,6 +57,7 @@ public class CaseDetailsEndpoint {
     private final AppInsights appInsights;
     private final FieldMapSanitizeOperation fieldMapSanitizeOperation;
     private final ValidateCaseFieldsOperation validateCaseFieldsOperation;
+    private final CoreCaseService service;
 
     @Autowired
     public CaseDetailsEndpoint(@Qualifier(CreatorGetCaseOperation.QUALIFIER) final GetCaseOperation getCaseOperation,
@@ -67,7 +69,8 @@ public class CaseDetailsEndpoint {
                                final ValidateCaseFieldsOperation validateCaseFieldsOperation,
                                final DocumentsOperation documentsOperation,
                                final PaginatedSearchMetaDataOperation paginatedSearchMetaDataOperation,
-                               final AppInsights appinsights) {
+                               final AppInsights appinsights,
+                               final CoreCaseService service) {
         this.getCaseOperation = getCaseOperation;
         this.createCaseOperation = createCaseOperation;
         this.createEventOperation = createEventOperation;
@@ -78,6 +81,7 @@ public class CaseDetailsEndpoint {
         this.validateCaseFieldsOperation = validateCaseFieldsOperation;
         this.paginatedSearchMetaDataOperation = paginatedSearchMetaDataOperation;
         this.appInsights = appinsights;
+        this.service = service;
     }
 
     @Transactional
@@ -416,14 +420,17 @@ public class CaseDetailsEndpoint {
     }
 
     @Transactional
-    @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/pagination_metadata", method = RequestMethod.GET)
+    @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/pagination_metadata", method = RequestMethod.GET)
     @ApiOperation(value = "Get the pagination metadata for a case data search")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Pagination metadata for the given search criteria")})
     public PaginatedSearchMetadata searchCasesMetadataForCaseworkers(@PathVariable("jid") final String jurisdictionId,
                                                                   @PathVariable("ctid") final String caseTypeId,
                                                                   @RequestParam Map<String, String> queryParameters) {
-        return searchMetadata(jurisdictionId, caseTypeId, queryParameters);
+        PaginatedSearchMetadata metadata = new PaginatedSearchMetadata();
+        metadata.setTotalPagesCount(1);
+        metadata.setTotalResultsCount(service.search().getSearchResultViewItems().length);
+        return metadata;
     }
 
     @Transactional

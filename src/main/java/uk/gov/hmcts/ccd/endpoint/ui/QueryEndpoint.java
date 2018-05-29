@@ -184,13 +184,13 @@ public class QueryEndpoint {
     @ApiResponses(value = {
         @ApiResponse(code = 200, message = "Valid pre-state conditions")
     })
-    public CaseEventTrigger getEventTriggerForCase(@PathVariable("uid") Integer userId,
-                                                   @PathVariable("jid") String jurisdictionId,
+    public CaseEventTrigger getEventTriggerForCase(@PathVariable("jid") String jurisdictionId,
                                                    @PathVariable("ctid") String caseTypeId,
                                                    @PathVariable("cid") String caseId,
                                                    @PathVariable("etid") String eventTriggerId,
                                                    @RequestParam(value = "ignore-warning", required = false) Boolean ignoreWarning) {
-        return getEventTriggerOperation.executeForCase(userId,
+
+        return getEventTriggerOperation.executeForCase(1,
                                                        jurisdictionId,
                                                        caseTypeId,
                                                        caseId,
