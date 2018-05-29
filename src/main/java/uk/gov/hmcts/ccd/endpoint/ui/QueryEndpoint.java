@@ -17,9 +17,8 @@ import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.data.casedetails.search.MetaData;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
-import uk.gov.hmcts.ccd.domain.model.definition.AccessControlList;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
-import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
+import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
+import uk.gov.hmcts.ccd.domain.model.definition.*;
 import uk.gov.hmcts.ccd.domain.model.search.*;
 import uk.gov.hmcts.ccd.domain.service.aggregated.*;
 
@@ -33,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.*;
 
@@ -166,16 +166,33 @@ public class QueryEndpoint {
         @ApiResponse(code = 200, message = "Empty pre-state conditions"),
         @ApiResponse(code = 422, message = "The case status did not qualify for the event")
     })
-    public CaseEventTrigger getEventTriggerForCaseType(@PathVariable("uid") Integer userId,
+    public CaseEventTrigger getEventTriggerForCaseType(@PathVariable("uid") String userId,
                                                        @PathVariable("jid") String jurisdictionId,
                                                        @PathVariable("ctid") String casetTypeId,
                                                        @PathVariable("etid") String eventTriggerId,
                                                        @RequestParam(value = "ignore-warning", required = false) Boolean ignoreWarning) {
-        return getEventTriggerOperation.executeForCaseType(userId,
-                                                           jurisdictionId,
-                                                           casetTypeId,
-                                                           eventTriggerId,
-                                                           ignoreWarning);
+        CaseEventTrigger trigger = new CaseEventTrigger();
+        List<CaseViewField> fields = application.getCaseType().getCaseFields().stream().map(x -> {
+            CaseViewField vf = new CaseViewField();
+            vf.setFieldType(x.getFieldType());
+            vf.setId(x.getId());
+            vf.setLabel(x.getLabel());
+            return vf;
+        }).collect(Collectors.toList());
+        trigger.setId(casetTypeId);
+        trigger.setName(casetTypeId);
+        trigger.setCaseFields(fields);
+        trigger.setCaseId(casetTypeId);
+        List<WizardPage> pages = application.getCaseType().getCaseFields().stream().map(x -> {
+           WizardPage page = new WizardPage();
+           page.setId(x.getId());
+           WizardPageField pageField = new WizardPageField();
+           pageField.setCaseFieldId(x.getId());
+           page.setWizardPageFields(Lists.newArrayList(pageField));
+           return page;
+        }).collect(Collectors.toList());
+        trigger.setWizardPages(pages);
+        return trigger;
     }
 
     @Transactional

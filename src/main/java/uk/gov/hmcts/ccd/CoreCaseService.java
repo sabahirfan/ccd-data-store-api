@@ -1,5 +1,6 @@
 package uk.gov.hmcts.ccd;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
@@ -56,5 +57,10 @@ public class CoreCaseService {
            return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(x));
         }).toArray(SearchResultViewItem[]::new);
         return new SearchResultView(columns, items);
+    }
+
+    public void onCaseCreated(JsonNode node) throws JsonProcessingException {
+        ICase c = (ICase) new ObjectMapper().treeToValue(node, application.getCaseClass());
+        application.saveCase(c);
     }
 }

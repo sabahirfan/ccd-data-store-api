@@ -1,6 +1,9 @@
 package uk.gov.hmcts.ccd.endpoint.std;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Maps;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,6 +11,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import springfox.documentation.spring.web.json.Json;
 import uk.gov.hmcts.ccd.AppInsights;
 import uk.gov.hmcts.ccd.CoreCaseService;
 import uk.gov.hmcts.ccd.data.casedetails.SecurityClassification;
@@ -226,7 +230,7 @@ public class CaseDetailsEndpoint {
         return startEventOperation.triggerStartForCaseType(uid, jurisdictionId, caseTypeId, eventTriggerId, ignoreWarning);
     }
 
-    @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
+    @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(
         value = "Submit case creation as Case worker",
@@ -246,9 +250,12 @@ public class CaseDetailsEndpoint {
         @PathVariable("ctid") final String caseTypeId,
         @ApiParam(value = "Should `AboutToSubmit` callback warnings be ignored")
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning,
-        @RequestBody final CaseDataContent content) {
+        @RequestBody final CaseDataContent content) throws JsonProcessingException {
 
-        return createCaseOperation.createCaseDetails(uid, jurisdictionId, caseTypeId, content.getEvent(), content.getData(), ignoreWarning, content.getToken());
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode node = mapper.valueToTree(content.getData());
+        service.onCaseCreated(node);
+        return new CaseDetails();
     }
 
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
@@ -276,7 +283,7 @@ public class CaseDetailsEndpoint {
         return createCaseOperation.createCaseDetails(uid, jurisdictionId, caseTypeId, content.getEvent(), content.getData(), ignoreWarning, content.getToken());
     }
 
-    @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/validate", method = RequestMethod.POST)
+    @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/validate", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
         value = "Validate a set of fields as Case worker",
@@ -294,8 +301,9 @@ public class CaseDetailsEndpoint {
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
         @PathVariable("ctid") final String caseTypeId,
-        @RequestBody final CaseDataContent content) {
-        return validateCaseFieldsOperation.validateCaseDetails(jurisdictionId, caseTypeId, content.getEvent(), content.getData());
+        @RequestBody final CaseDataContent content) throws JsonProcessingException {
+
+        return content.getData();
     }
 
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/validate", method = RequestMethod.POST)
