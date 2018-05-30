@@ -67,7 +67,7 @@ public class CoreCaseService {
 
     public SearchResultView search() {
         SearchResultViewColumn[] columns = FieldGenerator.generateFields(application.getCaseClass()).stream().map(x ->
-                new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getId(), 1)
+                new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 
         ObjectMapper mapper = new ObjectMapper();

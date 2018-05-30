@@ -19,7 +19,8 @@ public class FieldGenerator {
     public static List<CaseField> generateFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
         for (Field field : c.getDeclaredFields()) {
-            if (field.getAnnotation(CaseListField.class) != null) {
+            CaseListField cf = field.getAnnotation(CaseListField.class);
+            if (cf != null) {
                 CaseField caseField = new CaseField();
                 caseField.setId(field.getName());
                 FieldType type = new FieldType();
@@ -27,7 +28,7 @@ public class FieldGenerator {
                 type.setId(typeId);
                 type.setType(typeId);
                 caseField.setFieldType(type);
-                caseField.setLabel("A label");
+                caseField.setLabel(cf.label());
                 result.add(caseField);
             }
         }
