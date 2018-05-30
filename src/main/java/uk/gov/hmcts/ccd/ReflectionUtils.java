@@ -1,7 +1,9 @@
 package uk.gov.hmcts.ccd;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 
@@ -11,8 +13,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class FieldGenerator {
+public class ReflectionUtils {
     private static ImmutableMap<String, String> typeMap = ImmutableMap.of(
             "String", "Text"
     );
@@ -33,5 +36,14 @@ public class FieldGenerator {
             }
         }
         return result;
+    }
+
+    public static ImmutableSet<? extends Enum> extractStates(Class<? extends ICase> rhubarbCaseClass) {
+        try {
+            Method m = rhubarbCaseClass.getMethod("getState");
+            return (ImmutableSet<? extends Enum>) ImmutableSet.copyOf(m.getReturnType().getEnumConstants());
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

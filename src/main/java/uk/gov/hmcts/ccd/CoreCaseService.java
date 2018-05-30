@@ -3,6 +3,7 @@ package uk.gov.hmcts.ccd;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
@@ -10,8 +11,6 @@ import uk.gov.hmcts.ccd.domain.model.definition.*;
 import uk.gov.hmcts.ccd.domain.model.search.*;
 
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Stream;
 
 @Configuration
 @Service
@@ -29,9 +28,10 @@ public class CoreCaseService {
         result.setId(config.getCaseTypeId());
         result.setName(config.getCaseTypeId());
         result.setDescription(config.getCaseTypeId());
-        result.setCaseFields(FieldGenerator.generateFields(application.getCaseClass()));
+        result.setCaseFields(ReflectionUtils.generateFields(application.getCaseClass()));
+
         List<CaseState> states = Lists.newArrayList();
-        application.getStates().stream().forEach(x -> states.add(createState(x.toString())));
+        ReflectionUtils.extractStates(application.getCaseClass()).stream().forEach(x -> states.add(createState(x.toString())));
         List<CaseEvent> events = Lists.newArrayList();
         application.getEvents().stream().forEach(x -> events.add(createEvent(x.toString())));
 
@@ -55,7 +55,7 @@ public class CoreCaseService {
     }
 
     public WorkbasketInput[] getWorkBasketInputs() {
-        return FieldGenerator.generateFields(application.getCaseClass()).stream().map(x -> {
+        return ReflectionUtils.generateFields(application.getCaseClass()).stream().map(x -> {
             WorkbasketInput i = new WorkbasketInput();
             Field field = new Field();
             field.setType(x.getFieldType());
@@ -66,7 +66,7 @@ public class CoreCaseService {
     }
 
     public SearchResultView search() {
-        SearchResultViewColumn[] columns = FieldGenerator.generateFields(application.getCaseClass()).stream().map(x ->
+        SearchResultViewColumn[] columns = ReflectionUtils.generateFields(application.getCaseClass()).stream().map(x ->
                 new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 

@@ -6,7 +6,6 @@ import java.util.List;
 
 public interface ICCDApplication<T extends ICase> {
     Class<T> getCaseClass();
-    ImmutableSet<String> getStates();
     List<T> getCases();
     void saveCase(T c);
 
