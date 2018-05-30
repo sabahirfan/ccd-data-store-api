@@ -17,10 +17,12 @@ import java.util.List;
 public class CoreCaseService {
     private final ICCDApplication application;
     private final CCDAppConfig config;
+    private final Class caseClass;
 
     public CoreCaseService(CCDAppConfig config, ICCDApplication application) {
         this.config = config;
         this.application = application;
+        this.caseClass = ReflectionUtils.getCaseType(application.getClass());
     }
 
     public CaseType getCaseType() {
@@ -28,10 +30,10 @@ public class CoreCaseService {
         result.setId(config.getCaseTypeId());
         result.setName(config.getCaseTypeId());
         result.setDescription(config.getCaseTypeId());
-        result.setCaseFields(ReflectionUtils.generateFields(application.getCaseClass()));
+        result.setCaseFields(ReflectionUtils.generateFields(caseClass));
 
         List<CaseState> states = Lists.newArrayList();
-        ReflectionUtils.extractStates(application.getCaseClass()).stream().forEach(x -> states.add(createState(x.toString())));
+        ReflectionUtils.extractStates(caseClass).stream().forEach(x -> states.add(createState(x.toString())));
         List<CaseEvent> events = Lists.newArrayList();
         application.getEvents().stream().forEach(x -> events.add(createEvent(x.toString())));
 
@@ -55,7 +57,7 @@ public class CoreCaseService {
     }
 
     public WorkbasketInput[] getWorkBasketInputs() {
-        return ReflectionUtils.generateFields(application.getCaseClass()).stream().map(x -> {
+        return ReflectionUtils.generateFields(caseClass).stream().map(x -> {
             WorkbasketInput i = new WorkbasketInput();
             Field field = new Field();
             field.setType(x.getFieldType());
@@ -66,7 +68,7 @@ public class CoreCaseService {
     }
 
     public SearchResultView search() {
-        SearchResultViewColumn[] columns = ReflectionUtils.generateFields(application.getCaseClass()).stream().map(x ->
+        SearchResultViewColumn[] columns = ReflectionUtils.generateFields(caseClass).stream().map(x ->
                 new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 
@@ -79,7 +81,7 @@ public class CoreCaseService {
     }
 
     public void onCaseCreated(JsonNode node) throws JsonProcessingException {
-        ICase c = (ICase) new ObjectMapper().treeToValue(node, application.getCaseClass());
+        ICase c = (ICase) new ObjectMapper().treeToValue(node, caseClass);
         application.saveCase(c);
     }
 }

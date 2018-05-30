@@ -8,9 +8,7 @@ import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -36,6 +34,19 @@ public class ReflectionUtils {
             }
         }
         return result;
+    }
+
+    public static Class getCaseType(Class c) {
+        Type[] params = c.getGenericInterfaces();
+        for (Type param : params) {
+            if (param instanceof ParameterizedType) {
+                ParameterizedType p = (ParameterizedType) param;
+                if (p.getRawType().equals(ICCDApplication.class)) {
+                    return (Class) p.getActualTypeArguments()[0];
+                }
+            }
+        }
+        throw new RuntimeException();
     }
 
     public static ImmutableSet<? extends Enum> extractStates(Class<? extends ICase> rhubarbCaseClass) {
