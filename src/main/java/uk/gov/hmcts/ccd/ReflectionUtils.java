@@ -1,7 +1,7 @@
 package uk.gov.hmcts.ccd;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -109,6 +109,7 @@ public class ReflectionUtils {
             CaseViewField cf = declaredField.getAnnotation(CaseViewField.class);
             if (cf != null) {
                 for (String tab : cf.tab()) {
+
                     CaseViewTab caseViewTab = caseViewTabs.get(tab);
                     uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField[] fields = caseViewTab.getFields();
                     if (fields == null) {
@@ -116,16 +117,19 @@ public class ReflectionUtils {
                     }
                     uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
                     caseViewField.setId(cf.label());
-                    try {
-                        caseViewField.setFieldType(cf.type().newInstance());
-                    } catch (InstantiationException | IllegalAccessException e) {
-                        e.printStackTrace();
+
+                    JsonNode jsonNode = null;
+                    if (declaredField.getType() == String.class) {
+                        FieldType fieldType = new FieldType();
+                        fieldType.setId("Text");
+                        fieldType.setType("Text");
+                        caseViewField.setFieldType(fieldType);
+
+                        jsonNode = JsonNodeFactory.instance.textNode("How do I get this?");
                     }
                     caseViewField.setOrder(i + 1);
                     caseViewField.setLabel(cf.label());
-                    ObjectNode jsonNodes = JsonNodeFactory.instance.objectNode();
-                    jsonNodes.put("var", "var");
-                    caseViewField.setValue(jsonNodes);
+                    caseViewField.setValue(jsonNode);
 
                     fields[fields.length - 1] = caseViewField;
                     caseViewTab.setFields(fields);

@@ -1,7 +1,5 @@
 package uk.gov.hmcts.ccd.definition;
 
-import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -11,6 +9,5 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface CaseViewField {
     String label();
-    Class<FieldType> type();
     String[] tab();
 }
