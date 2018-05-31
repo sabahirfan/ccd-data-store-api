@@ -1,14 +1,12 @@
 package uk.gov.hmcts.ccd.endpoint.std;
 
 import io.swagger.annotations.*;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
 import uk.gov.hmcts.ccd.domain.model.definition.Document;
-import uk.gov.hmcts.ccd.domain.service.stdapi.PrintableDocumentListOperation;
 
-import javax.transaction.Transactional;
+
 import java.util.List;
 
 @RestController
@@ -17,14 +15,7 @@ import java.util.List;
     produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(description = "Default callbacks")
 public class CallbackEndpoint {
-    private final PrintableDocumentListOperation printableDocumentListOperation;
 
-    @Autowired
-    public CallbackEndpoint(final PrintableDocumentListOperation printableDocumentListOperation) {
-        this.printableDocumentListOperation = printableDocumentListOperation;
-    }
-
-    @Transactional
     @RequestMapping(value = "/jurisdictions/{jid}/case-types/{ctid}/documents", method = RequestMethod.POST)
     @ApiOperation(value = "Get printable documents", notes = "Retrieve a list of printable documents for a case")
     @ApiResponses(value = {
@@ -36,6 +27,6 @@ public class CallbackEndpoint {
         @ApiParam(value = "Case type ID", required = true)
         @PathVariable("ctid") final String caseTypeId,
         @RequestBody final CaseDetails caseDetails) {
-        return printableDocumentListOperation.getPrintableDocumentList(jurisdictionId, caseTypeId, caseDetails);
+        throw new RuntimeException("not implemented");
     }
 }

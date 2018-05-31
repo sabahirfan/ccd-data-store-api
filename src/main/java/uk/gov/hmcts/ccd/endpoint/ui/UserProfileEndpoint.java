@@ -5,25 +5,17 @@ import io.swagger.annotations.ApiResponse;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.*;
-import uk.gov.hmcts.ccd.domain.service.aggregated.DefaultGetUserProfileOperation;
-import uk.gov.hmcts.ccd.domain.service.aggregated.GetUserProfileOperation;
 
 import javax.inject.Inject;
-import javax.transaction.Transactional;
+
 
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
 @RestController
 public class UserProfileEndpoint {
     private static final String BEARER = "Bearer ";
-    private final GetUserProfileOperation getUserProfileOperation;
 
-    @Inject
-    public UserProfileEndpoint(@Qualifier(DefaultGetUserProfileOperation.QUALIFIER) final GetUserProfileOperation getUserProfileOperation) {
-        this.getUserProfileOperation = getUserProfileOperation;
-    }
 
-    @Transactional
     @RequestMapping(value = "/data/caseworkers/{uid}/profile", method = RequestMethod.GET)
     @ApiOperation(value = "Get default setting for user")
     @ApiResponse(code = 200, message = "User default settings")
