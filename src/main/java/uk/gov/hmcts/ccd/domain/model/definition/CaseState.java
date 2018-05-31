@@ -20,6 +20,32 @@ public class CaseState implements Serializable {
     private Integer displayOrder = null;
     private List<AccessControlList> accessControlLists;
 
+    public CaseState() {
+    }
+
+    public CaseState(
+            String id,
+            String name,
+            String description,
+            int displayOrder
+    ) {
+        this(id, name, description, displayOrder, null);
+    }
+
+    public CaseState(
+            String id,
+            String name,
+            String description,
+            Integer displayOrder,
+            List<AccessControlList> accessControlLists
+    ) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.displayOrder = displayOrder;
+        this.accessControlLists = accessControlLists;
+    }
+
     /**
      **/
     @ApiModelProperty(required = true, value = "")

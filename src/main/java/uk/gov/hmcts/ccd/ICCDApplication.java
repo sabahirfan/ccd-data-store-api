@@ -1,6 +1,7 @@
 package uk.gov.hmcts.ccd;
 
 import com.google.common.collect.ImmutableSet;
+import uk.gov.hmcts.ccd.domain.model.aggregated.ProfileCaseState;
 
 import java.util.List;
 import java.util.Map;
@@ -10,4 +11,6 @@ public interface ICCDApplication<T extends ICase> {
     void saveCase(T c);
 
     ImmutableSet<String> getEvents();
+
+    ProfileCaseState getCaseState(String caseId);
 }
