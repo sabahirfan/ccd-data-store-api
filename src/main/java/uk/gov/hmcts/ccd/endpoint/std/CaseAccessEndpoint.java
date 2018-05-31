@@ -7,7 +7,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.ccd.domain.model.std.UserId;
-import uk.gov.hmcts.ccd.domain.service.caseaccess.CaseAccessOperation;
 
 import java.util.List;
 
@@ -17,11 +16,6 @@ import java.util.List;
 public class CaseAccessEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(CaseAccessEndpoint.class);
-    private final CaseAccessOperation caseAccessOperation;
-
-    public CaseAccessEndpoint(CaseAccessOperation caseAccessOperation) {
-        this.caseAccessOperation = caseAccessOperation;
-    }
 
     @RequestMapping(
         value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/ids",
@@ -44,7 +38,7 @@ public class CaseAccessEndpoint {
         @RequestParam(value = "userId") final String idSearchingFor
     ) {
         LOG.debug("Finding cases user: {} has access to", idSearchingFor);
-        return caseAccessOperation.findCasesUserIdHasAccessTo(idSearchingFor);
+        throw new RuntimeException("not implemented");
     }
 
     @RequestMapping(
@@ -70,7 +64,7 @@ public class CaseAccessEndpoint {
         @RequestBody final UserId id
     ) {
         LOG.debug("Granting access to case: {}, for user: {}", caseId, id);
-        caseAccessOperation.grantAccess(jurisdictionId, caseId, id.getId());
+        throw new RuntimeException("not implemented");
     }
 
     @RequestMapping(
@@ -97,6 +91,6 @@ public class CaseAccessEndpoint {
         @PathVariable("idToDelete") final String idToDelete
     ) {
         LOG.debug("Revoking access to case: {}, for user: {}", caseId, idToDelete, idToDelete);
-        caseAccessOperation.revokeAccess(jurisdictionId, caseId, idToDelete);
+        throw new RuntimeException("not implemented");
     }
 }

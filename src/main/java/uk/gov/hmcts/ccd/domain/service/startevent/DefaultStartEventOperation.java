@@ -4,8 +4,6 @@ import com.google.common.collect.Maps;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
-import uk.gov.hmcts.ccd.data.casedetails.CachedCaseDetailsRepository;
-import uk.gov.hmcts.ccd.data.casedetails.CaseDetailsRepository;
 import uk.gov.hmcts.ccd.data.definition.CachedCaseDefinitionRepository;
 import uk.gov.hmcts.ccd.data.definition.CaseDefinitionRepository;
 import uk.gov.hmcts.ccd.domain.model.callbacks.StartEventTrigger;
@@ -30,7 +28,6 @@ public class DefaultStartEventOperation implements StartEventOperation {
 
     private final EventTokenService eventTokenService;
     private final CaseDefinitionRepository caseDefinitionRepository;
-    private final CaseDetailsRepository caseDetailsRepository;
     private final EventTriggerService eventTriggerService;
     private final CaseService caseService;
     private final CaseTypeService caseTypeService;
@@ -40,7 +37,6 @@ public class DefaultStartEventOperation implements StartEventOperation {
     @Autowired
     public DefaultStartEventOperation(final EventTokenService eventTokenService,
                                @Qualifier(CachedCaseDefinitionRepository.QUALIFIER) final CaseDefinitionRepository caseDefinitionRepository,
-                               @Qualifier(CachedCaseDetailsRepository.QUALIFIER) final CaseDetailsRepository caseDetailsRepository,
                                final EventTriggerService eventTriggerService,
                                final CaseService caseService,
                                final CaseTypeService caseTypeService,
@@ -49,7 +45,6 @@ public class DefaultStartEventOperation implements StartEventOperation {
 
         this.eventTokenService = eventTokenService;
         this.caseDefinitionRepository = caseDefinitionRepository;
-        this.caseDetailsRepository = caseDetailsRepository;
         this.eventTriggerService = eventTriggerService;
         this.caseService = caseService;
         this.caseTypeService = caseTypeService;
@@ -120,15 +115,7 @@ public class DefaultStartEventOperation implements StartEventOperation {
     }
 
     private CaseDetails getCaseDetails(String jurisdictionId, String caseTypeId, String caseReference) {
-        if (!uidService.validateUID(caseReference)) {
-            throw new BadRequestException("Case reference is not valid");
-        }
-
-        final CaseDetails caseDetails = caseDetailsRepository.findUniqueCase(jurisdictionId, caseTypeId, caseReference);
-        if (caseDetails == null) {
-            throw new ResourceNotFoundException("No case exist with id=" + caseReference);
-        }
-        return caseDetails;
+        throw new RuntimeException("not implemented");
     }
 
     private CaseEvent getEventTrigger(String caseTypeId, String eventTriggerId, CaseType caseType) {

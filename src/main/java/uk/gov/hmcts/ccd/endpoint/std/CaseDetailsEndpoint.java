@@ -3,7 +3,6 @@ package uk.gov.hmcts.ccd.endpoint.std;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.Maps;
 import io.swagger.annotations.*;
 import org.apache.commons.lang3.EnumUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import springfox.documentation.spring.web.json.Json;
 import uk.gov.hmcts.ccd.AppInsights;
 import uk.gov.hmcts.ccd.CoreCaseService;
 import uk.gov.hmcts.ccd.data.casedetails.SecurityClassification;
@@ -25,18 +23,11 @@ import uk.gov.hmcts.ccd.domain.model.std.CaseDataContent;
 import uk.gov.hmcts.ccd.domain.service.createcase.CreateCaseOperation;
 import uk.gov.hmcts.ccd.domain.service.createevent.CreateEventOperation;
 import uk.gov.hmcts.ccd.domain.service.getcase.CaseNotFoundException;
-import uk.gov.hmcts.ccd.domain.service.getcase.CreatorGetCaseOperation;
 import uk.gov.hmcts.ccd.domain.service.getcase.GetCaseOperation;
-import uk.gov.hmcts.ccd.domain.service.search.CreatorSearchOperation;
-import uk.gov.hmcts.ccd.domain.service.search.PaginatedSearchMetaDataOperation;
-import uk.gov.hmcts.ccd.domain.service.search.SearchOperation;
 import uk.gov.hmcts.ccd.domain.service.startevent.StartEventOperation;
-import uk.gov.hmcts.ccd.domain.service.stdapi.DocumentsOperation;
 import uk.gov.hmcts.ccd.domain.service.validate.ValidateCaseFieldsOperation;
-import uk.gov.hmcts.ccd.endpoint.exceptions.ApiException;
 import uk.gov.hmcts.ccd.endpoint.exceptions.BadRequestException;
 
-import javax.transaction.Transactional;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -51,44 +42,25 @@ import static java.util.stream.Collectors.toList;
     produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "/", description = "Standard case API")
 public class CaseDetailsEndpoint {
-    private final GetCaseOperation getCaseOperation;
-    private final CreateCaseOperation createCaseOperation;
-    private final CreateEventOperation createEventOperation;
-    private final StartEventOperation startEventOperation;
-    private final DocumentsOperation documentsOperation;
-    private final SearchOperation searchOperation;
-    private final PaginatedSearchMetaDataOperation paginatedSearchMetaDataOperation;
     private final AppInsights appInsights;
     private final FieldMapSanitizeOperation fieldMapSanitizeOperation;
     private final ValidateCaseFieldsOperation validateCaseFieldsOperation;
     private final CoreCaseService service;
 
     @Autowired
-    public CaseDetailsEndpoint(@Qualifier(CreatorGetCaseOperation.QUALIFIER) final GetCaseOperation getCaseOperation,
-                               @Qualifier("authorised") final CreateCaseOperation createCaseOperation,
-                               @Qualifier("authorised") final CreateEventOperation createEventOperation,
-                               @Qualifier("authorised") final StartEventOperation startEventOperation,
-                               @Qualifier(CreatorSearchOperation.QUALIFIER) final SearchOperation searchOperation,
+    public CaseDetailsEndpoint(
+
                                final FieldMapSanitizeOperation fieldMapSanitizeOperation,
                                final ValidateCaseFieldsOperation validateCaseFieldsOperation,
-                               final DocumentsOperation documentsOperation,
-                               final PaginatedSearchMetaDataOperation paginatedSearchMetaDataOperation,
                                final AppInsights appinsights,
                                final CoreCaseService service) {
-        this.getCaseOperation = getCaseOperation;
-        this.createCaseOperation = createCaseOperation;
-        this.createEventOperation = createEventOperation;
-        this.startEventOperation = startEventOperation;
-        this.searchOperation = searchOperation;
         this.fieldMapSanitizeOperation = fieldMapSanitizeOperation;
-        this.documentsOperation = documentsOperation;
         this.validateCaseFieldsOperation = validateCaseFieldsOperation;
-        this.paginatedSearchMetaDataOperation = paginatedSearchMetaDataOperation;
         this.appInsights = appinsights;
         this.service = service;
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}", method = RequestMethod.GET)
     @ApiOperation(value = "Get case", notes = "Retrieve an existing case with its state and data")
     @ApiResponses(value = {
@@ -106,15 +78,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Case ID", required = true)
         @PathVariable("cid") final String caseId) {
 
-        final Instant start = Instant.now();
-        final CaseDetails caseDetails = getCaseOperation.execute(jurisdictionId, caseTypeId, caseId)
-                            .orElseThrow(() -> new CaseNotFoundException(jurisdictionId, caseTypeId, caseId));
-        final Duration duration = Duration.between(start, Instant.now());
-        appInsights.trackRequest("findCaseDetailsForCaseworker", duration.toMillis(), true);
-        return caseDetails;
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}", method = RequestMethod.GET)
     @ApiOperation(value = "Get case", notes = "Retrieve an existing case with its state and data")
     @ApiResponses(value = {
@@ -132,11 +99,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Case ID", required = true)
         @PathVariable("cid") final String caseId) {
 
-        return getCaseOperation.execute(jurisdictionId, caseTypeId, caseId)
-                               .orElseThrow(() -> new CaseNotFoundException(caseId));
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/event-triggers/{etid}/token", method = RequestMethod.GET)
     @ApiOperation(value = "Start event creation as Case worker", notes = "Start the event creation process for an existing case. Triggers `AboutToStart` callback.")
     @ApiResponses(value = {
@@ -158,10 +124,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Should `AboutToStart` callback warnings be ignored")
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning) {
 
-        return startEventOperation.triggerStartForCase(uid, jurisdictionId, caseTypeId, caseId, eventTriggerId, ignoreWarning);
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/event-triggers/{etid}/token", method = RequestMethod.GET)
     @ApiOperation(value = "Start event creation as Citizen", notes = "Start the event creation process for an existing case. Triggers `AboutToStart` callback.")
     @ApiResponses(value = {
@@ -183,10 +149,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Should `AboutToStart` callback warnings be ignored")
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning) {
 
-        return startEventOperation.triggerStartForCase(uid, jurisdictionId, caseTypeId, caseId, eventTriggerId, ignoreWarning);
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/event-triggers/{etid}/token", method = RequestMethod.GET)
     @ApiOperation(value = "Start case creation as Case worker", notes = "Start the case creation process for a new case. Triggers `AboutToStart` callback.")
     @ApiResponses(value = {
@@ -205,10 +171,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Should `AboutToStart` callback warnings be ignored")
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning) {
 
-        return startEventOperation.triggerStartForCaseType(uid, jurisdictionId, caseTypeId, eventTriggerId, ignoreWarning);
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/event-triggers/{etid}/token", method = RequestMethod.GET)
     @ApiOperation(value = "Start case creation as Citizen", notes = "Start the case creation process for a new case. Triggers `AboutToStart` callback.")
     @ApiResponses(value = {
@@ -227,7 +193,7 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Should `AboutToStart` callback warnings be ignored")
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning) {
 
-        return startEventOperation.triggerStartForCaseType(uid, jurisdictionId, caseTypeId, eventTriggerId, ignoreWarning);
+        throw new RuntimeException("not implemented");
     }
 
     @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
@@ -280,7 +246,7 @@ public class CaseDetailsEndpoint {
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning,
         @RequestBody final CaseDataContent content) {
 
-        return createCaseOperation.createCaseDetails(uid, jurisdictionId, caseTypeId, content.getEvent(), content.getData(), ignoreWarning, content.getToken());
+        throw new RuntimeException("not implemented");
     }
 
     @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/validate", method = RequestMethod.POST)
@@ -327,7 +293,7 @@ public class CaseDetailsEndpoint {
         @RequestBody final CaseDataContent content) {
         return validateCaseFieldsOperation.validateCaseDetails(jurisdictionId, caseTypeId, content.getEvent(), content.getData());
     }
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/events", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(
@@ -349,10 +315,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Case ID", required = true)
         @PathVariable("cid") final String caseId,
         @RequestBody final CaseDataContent content) {
-        return createEventOperation.createCaseEvent(uid, jurisdictionId, caseTypeId, caseId, content.getEvent(), content.getData(), content.getToken(), content.getIgnoreWarning());
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/events", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(
@@ -374,10 +340,10 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Case ID", required = true)
         @PathVariable("cid") final String caseId,
         @RequestBody final CaseDataContent content) {
-        return createEventOperation.createCaseEvent(uid, jurisdictionId, caseTypeId, caseId, content.getEvent(), content.getData(), content.getToken(), content.getIgnoreWarning());
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/documents", method = RequestMethod.GET)
     @ApiOperation(value = "Get a list of printable documents for the given case type ")
     @ApiResponses(value = {
@@ -387,14 +353,10 @@ public class CaseDetailsEndpoint {
         @PathVariable("jid") String jid,
         @PathVariable("ctid") String ctid,
         @PathVariable("cid") String cid) {
-        try {
-            return documentsOperation.getPrintableDocumentsForCase(jid, ctid, cid);
-        } catch (NumberFormatException e) {
-            throw new ApiException(String.format("Unrecognised Case Reference %s. Case Reference should be a number", cid));
-        }
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.GET)
     @ApiOperation(value = "Get case data for a given case type")
     @ApiResponses(value = {
@@ -405,7 +367,7 @@ public class CaseDetailsEndpoint {
         return searchCases(jurisdictionId, caseTypeId, queryParameters);
     }
 
-    @Transactional
+
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.GET)
     @ApiOperation(value = "Get case data for a given case type")
     @ApiResponses(value = {
@@ -420,14 +382,10 @@ public class CaseDetailsEndpoint {
                                           final String caseTypeId,
                                           final Map<String, String> queryParameters) {
 
-        final MetaData metadata = createMetadata(jurisdictionId, caseTypeId, queryParameters);
-
-        final Map<String, String> sanitizedParams = fieldMapSanitizeOperation.execute(queryParameters);
-
-        return searchOperation.execute(metadata, sanitizedParams);
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/pagination_metadata", method = RequestMethod.GET)
     @ApiOperation(value = "Get the pagination metadata for a case data search")
     @ApiResponses(value = {
@@ -442,7 +400,7 @@ public class CaseDetailsEndpoint {
         return metadata;
     }
 
-    @Transactional
+
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/pagination_metadata", method = RequestMethod.GET)
     @ApiOperation(value = "Get the pagination metadata for a case data search")
     @ApiResponses(value = {
@@ -456,12 +414,7 @@ public class CaseDetailsEndpoint {
     private PaginatedSearchMetadata searchMetadata(final String jurisdictionId,
                                                    final String caseTypeId,
                                                    final Map<String, String> queryParameters) {
-
-        final MetaData metadata = createMetadata(jurisdictionId, caseTypeId, queryParameters);
-
-        final Map<String, String> sanitizedParams = fieldMapSanitizeOperation.execute(queryParameters);
-
-        return paginatedSearchMetaDataOperation.execute(metadata, sanitizedParams);
+        throw new RuntimeException("not implemented");
     }
 
 

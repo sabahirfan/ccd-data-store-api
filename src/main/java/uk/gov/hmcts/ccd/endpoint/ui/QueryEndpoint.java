@@ -27,16 +27,10 @@ import uk.gov.hmcts.ccd.domain.model.definition.WizardPageField;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
-import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedFindSearchInputOperation;
-import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedFindWorkbasketInputOperation;
-import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedGetCaseTypesOperation;
-import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedGetCaseViewOperation;
-import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedGetEventTriggerOperation;
 import uk.gov.hmcts.ccd.domain.service.aggregated.FindSearchInputOperation;
 import uk.gov.hmcts.ccd.domain.service.aggregated.FindWorkbasketInputOperation;
 import uk.gov.hmcts.ccd.domain.service.aggregated.GetCaseTypesOperation;
 import uk.gov.hmcts.ccd.domain.service.aggregated.GetEventTriggerOperation;
-import uk.gov.hmcts.ccd.domain.service.aggregated.SearchQueryOperation;
 
 import java.io.IOException;
 import java.time.Duration;
@@ -48,7 +42,7 @@ import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.inject.Inject;
-import javax.transaction.Transactional;
+
 
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_CREATE;
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_READ;
@@ -61,32 +55,14 @@ import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_UP
 public class QueryEndpoint {
 
     private static final Logger LOG = LoggerFactory.getLogger(QueryEndpoint.class);
-    private final AuthorisedGetCaseViewOperation getCaseViewOperation;
-    private final GetEventTriggerOperation getEventTriggerOperation;
-    private final SearchQueryOperation searchQueryOperation;
     private final FieldMapSanitizeOperation fieldMapSanitizeOperation;
-    private final FindSearchInputOperation findSearchInputOperation;
-    private final FindWorkbasketInputOperation findWorkbasketInputOperation;
-    private final GetCaseTypesOperation getCaseTypesOperation;
     private final HashMap<String, Predicate<AccessControlList>> accessMap;
     private final CoreCaseService application;
 
     @Inject
-    public QueryEndpoint(final AuthorisedGetCaseViewOperation getCaseViewOperation,
-                         @Qualifier(AuthorisedGetEventTriggerOperation.QUALIFIER) final GetEventTriggerOperation getEventTriggerOperation,
-                         final SearchQueryOperation searchQueryOperation,
-                         final FieldMapSanitizeOperation fieldMapSanitizeOperation,
-                         @Qualifier(AuthorisedFindSearchInputOperation.QUALIFIER) final FindSearchInputOperation findSearchInputOperation,
-                         @Qualifier(AuthorisedFindWorkbasketInputOperation.QUALIFIER) final FindWorkbasketInputOperation findWorkbasketInputOperation,
-                         @Qualifier(AuthorisedGetCaseTypesOperation.QUALIFIER) final GetCaseTypesOperation getCaseTypesOperation,
+    public QueryEndpoint(final FieldMapSanitizeOperation fieldMapSanitizeOperation,
                          CoreCaseService application) {
-        this.getCaseViewOperation = getCaseViewOperation;
-        this.getEventTriggerOperation = getEventTriggerOperation;
-        this.searchQueryOperation = searchQueryOperation;
         this.fieldMapSanitizeOperation = fieldMapSanitizeOperation;
-        this.findSearchInputOperation = findSearchInputOperation;
-        this.findWorkbasketInputOperation = findWorkbasketInputOperation;
-        this.getCaseTypesOperation = getCaseTypesOperation;
         this.accessMap = Maps.newHashMap();
         this.application = application;
         accessMap.put("create", CAN_CREATE);
@@ -98,7 +74,7 @@ public class QueryEndpoint {
      * @deprecated see https://tools.hmcts.net/jira/browse/RDM-1421
      */
     @Deprecated
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types", method = RequestMethod.GET)
     @ApiOperation(value = "Get case types")
     @ApiResponses(value = {
@@ -109,7 +85,7 @@ public class QueryEndpoint {
         return Lists.newArrayList(application.getCaseType());
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.GET)
     @ApiOperation(value = "Get case data with UI layout")
     @ApiResponses(value = {
@@ -136,7 +112,7 @@ public class QueryEndpoint {
         return Optional.ofNullable(queryParameters.get(param));
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/inputs", method = RequestMethod.GET)
     @ApiOperation(value = "Get Search Input details")
     @ApiResponses(value = {
@@ -146,10 +122,10 @@ public class QueryEndpoint {
     public SearchInput[] findSearchInputDetails(@PathVariable("uid") final Integer uid,
                                                 @PathVariable("jid") final String jurisdictionId,
                                                 @PathVariable("ctid") final String caseTypeId) {
-        return findSearchInputOperation.execute(jurisdictionId, caseTypeId, CAN_READ).toArray(new SearchInput[0]);
+        throw new RuntimeException("not implemented");
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/work-basket-inputs", method = RequestMethod.GET)
     @ApiOperation(value = "Get Workbasket Input details")
     @ApiResponses(value = {
@@ -161,7 +137,7 @@ public class QueryEndpoint {
         return application.getWorkBasketInputs();
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}", method = RequestMethod.GET)
     @ApiOperation(value = "Fetch a case for display")
     @ApiResponses(value = {
@@ -177,7 +153,7 @@ public class QueryEndpoint {
         return caseView;
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/event-triggers/{etid}", method = RequestMethod.GET)
     @ApiOperation(value = "Fetch an event trigger in the context of a case type")
     @ApiResponses(value = {
@@ -213,7 +189,7 @@ public class QueryEndpoint {
         return trigger;
     }
 
-    @Transactional
+
     @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/{cid}/event-triggers/{etid}", method = RequestMethod.GET)
     @ApiOperation(value = "Fetch an event trigger in the context of a case")
     @ApiResponses(value = {
@@ -225,11 +201,7 @@ public class QueryEndpoint {
                                                    @PathVariable("etid") String eventTriggerId,
                                                    @RequestParam(value = "ignore-warning", required = false) Boolean ignoreWarning) {
 
-        return getEventTriggerOperation.executeForCase(1,
-                                                       jurisdictionId,
-                                                       caseTypeId,
-                                                       caseId,
-                                                       eventTriggerId,
-                                                       ignoreWarning);
+
+        throw new RuntimeException("not implemented");
     }
 }
