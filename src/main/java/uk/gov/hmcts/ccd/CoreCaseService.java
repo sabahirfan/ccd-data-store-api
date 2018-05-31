@@ -63,6 +63,7 @@ public class CoreCaseService {
             field.setType(x.getFieldType());
             field.setId(x.getId());
             i.setField(field);
+            i.setLabel(x.getLabel());
             return i;
         }).toArray(WorkbasketInput[]::new);
     }
