@@ -116,9 +116,11 @@ public class ReflectionUtils {
                     }
                     uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
                     caseViewField.setId(cf.label());
-                    FieldType fieldType = new FieldType();
-                    fieldType.setType(cf.type());
-                    caseViewField.setFieldType(fieldType);
+                    try {
+                        caseViewField.setFieldType(cf.type().newInstance());
+                    } catch (InstantiationException | IllegalAccessException e) {
+                        e.printStackTrace();
+                    }
                     caseViewField.setOrder(i + 1);
                     caseViewField.setLabel(cf.label());
                     ObjectNode jsonNodes = JsonNodeFactory.instance.objectNode();

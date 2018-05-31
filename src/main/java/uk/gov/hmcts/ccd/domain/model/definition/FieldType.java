@@ -22,6 +22,16 @@ public class FieldType implements Serializable {
     @JsonProperty("collection_field_type")
     private FieldType collectionFieldType = null;
 
+    public static final FieldType TEXT = new FieldType("Text", "Text");
+
+    public FieldType(String id, String type) {
+        this.id = id;
+        this.type = type;
+    }
+
+    public FieldType() {
+    }
+
     public String getType() {
         return type;
     }
