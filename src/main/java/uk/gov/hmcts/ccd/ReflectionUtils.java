@@ -3,15 +3,12 @@ package uk.gov.hmcts.ccd;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
+import uk.gov.hmcts.ccd.definition.CaseListField;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.*;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class ReflectionUtils {
     private static ImmutableMap<String, String> typeMap = ImmutableMap.of(

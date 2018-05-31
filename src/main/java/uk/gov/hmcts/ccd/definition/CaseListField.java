@@ -1,4 +1,4 @@
-package uk.gov.hmcts.ccd;
+package uk.gov.hmcts.ccd.definition;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

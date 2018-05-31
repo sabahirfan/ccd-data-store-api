@@ -9,19 +9,35 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.MediaType;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import uk.gov.hmcts.ccd.CoreCaseService;
 import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.data.casedetails.search.MetaData;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
-import uk.gov.hmcts.ccd.domain.model.definition.*;
-import uk.gov.hmcts.ccd.domain.model.search.*;
-import uk.gov.hmcts.ccd.domain.service.aggregated.*;
+import uk.gov.hmcts.ccd.domain.model.definition.AccessControlList;
+import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
+import uk.gov.hmcts.ccd.domain.model.definition.WizardPage;
+import uk.gov.hmcts.ccd.domain.model.definition.WizardPageField;
+import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
+import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
+import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
+import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedFindSearchInputOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedFindWorkbasketInputOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedGetCaseTypesOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedGetCaseViewOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.AuthorisedGetEventTriggerOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.FindSearchInputOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.FindWorkbasketInputOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.GetCaseTypesOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.GetEventTriggerOperation;
+import uk.gov.hmcts.ccd.domain.service.aggregated.SearchQueryOperation;
 
-import javax.inject.Inject;
-import javax.transaction.Transactional;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
@@ -31,8 +47,12 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+import javax.inject.Inject;
+import javax.transaction.Transactional;
 
-import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.*;
+import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_CREATE;
+import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_READ;
+import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_UPDATE;
 
 @RestController
 @RequestMapping(path = "/aggregated",
@@ -151,7 +171,7 @@ public class QueryEndpoint {
                              @PathVariable("ctid") final String caseTypeId,
                              @PathVariable("cid") final String cid) {
         Instant start = Instant.now();
-        CaseView caseView = getCaseViewOperation.execute(jurisdictionId, caseTypeId, cid);
+        CaseView caseView = application.getCaseView(jurisdictionId, caseTypeId, cid);
         final Duration between = Duration.between(start, Instant.now());
         LOG.warn("findCase has been completed in {} millisecs...", between.toMillis());
         return caseView;
