@@ -5,6 +5,7 @@ public class WorkbasketInput {
     private String label;
     private int order;
     private Field field;
+
     public String getLabel() {
         return label;
     }
