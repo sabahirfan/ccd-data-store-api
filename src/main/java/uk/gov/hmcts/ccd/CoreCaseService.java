@@ -166,15 +166,7 @@ public class CoreCaseService {
     }
 
     public WorkbasketInput[] getWorkBasketInputs() {
-        return ReflectionUtils.generateFields(caseClass).stream().map(x -> {
-            WorkbasketInput i = new WorkbasketInput();
-            Field field = new Field();
-            field.setType(x.getFieldType());
-            field.setId(x.getId());
-            i.setField(field);
-            i.setLabel(x.getLabel());
-            return i;
-        }).toArray(WorkbasketInput[]::new);
+        return ReflectionUtils.generateWorkbasketInputs(caseClass).toArray(new WorkbasketInput[0]);
     }
 
     public SearchResultView search(Map<String, String> criteria) {

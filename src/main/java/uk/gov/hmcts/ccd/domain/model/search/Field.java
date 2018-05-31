@@ -8,6 +8,14 @@ public class Field {
     @JsonProperty("field_type")
     private FieldType type;
 
+    public Field(String id, FieldType type) {
+        this.id = id;
+        this.type = type;
+    }
+
+    public Field() {
+    }
+
     public String getId() {
         return id;
     }
