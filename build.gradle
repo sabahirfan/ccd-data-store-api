@@ -163,10 +163,6 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-starter")
 
-    compile("org.springframework.boot:spring-boot-starter-cache")
-    compile group: 'com.hazelcast', name: 'hazelcast'
-    compile group: 'com.hazelcast', name: 'hazelcast-spring'
-
     compile group: 'org.springframework.boot', name: 'spring-boot-starter-actuator'
     compile("org.springframework.boot:spring-boot-starter-web")
 //    compile group: 'org.springframework.retry', name: 'spring-retry', version: '1.2.2.RELEASE'
@@ -179,10 +175,6 @@ dependencies {
     compile group: 'com.sun.mail', name: 'mailapi', version: '1.6.1'
     compile group: 'commons-lang', name: 'commons-lang', version: '2.6'
 
-
-    // FIXME 0.6 doesn't support jsonb; 0.7 doesn't work on Windows
-//    runtime group: 'com.impossibl.pgjdbc-ng', name: 'pgjdbc-ng', version: '0.6'
-    runtime group: 'com.zaxxer', name: 'HikariCP', version: '2.7.8'
 
     testCompile "junit:junit"
     testCompile group: 'org.springframework.boot', name: 'spring-boot-starter-test'
