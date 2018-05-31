@@ -9,7 +9,10 @@ import org.springframework.stereotype.Service;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewEvent;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewJurisdiction;
+import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
+import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewType;
+import uk.gov.hmcts.ccd.domain.model.aggregated.ProfileCaseState;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseEvent;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseState;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
@@ -76,6 +79,14 @@ public class CoreCaseService {
     public CaseView getCaseView(String jurisdictionId, String caseTypeId, String caseId) {
         CaseView caseView = new CaseView();
         caseView.setCaseId(caseId);
+        caseView.setTabs(getCaseViewTabs());
+        caseView.setChannels(getChannels());
+        caseView.setTriggers(getTriggers());
+        ProfileCaseState state = new ProfileCaseState();
+        state.setId("open");
+        state.setName("Open");
+        state.setDescription("Open");
+        caseView.setState(state);
         CaseViewType caseType = new CaseViewType();
         CaseViewJurisdiction jurisdiction = new CaseViewJurisdiction();
         jurisdiction.setId(jurisdictionId);
@@ -88,6 +99,40 @@ public class CoreCaseService {
         caseView.setEvents(getCaseViewEvents());
 
         return caseView;
+    }
+
+    private CaseViewTrigger[] getTriggers() {
+        CaseViewTrigger[] caseViewTriggers = new CaseViewTrigger[1];
+        CaseViewTrigger caseViewTrigger = new CaseViewTrigger();
+        caseViewTrigger.setId("MoreTimeRequestPaper");
+        caseViewTrigger.setName("More time request paper");
+        caseViewTrigger.setOrder(1);
+
+        caseViewTriggers[0] = caseViewTrigger;
+        return caseViewTriggers;
+    }
+
+    private String[] getChannels() {
+        String[] strings = new String[1];
+        strings[0] = "channel1";
+        return strings;
+    }
+
+    private CaseViewTab[] getCaseViewTabs() {
+        CaseViewTab caseViewTab1 = createCaseViewTab(1, "ApplicantTab", "Applicant");
+        CaseViewTab caseViewTab2 = createCaseViewTab(2, "ProsecutorTab", "Prosecutor");
+        CaseViewTab[] caseViewTabs = new CaseViewTab[2];
+        caseViewTabs[0] = caseViewTab1;
+        caseViewTabs[1] = caseViewTab2;
+        return caseViewTabs;
+    }
+
+    private CaseViewTab createCaseViewTab(int order, String id, String label) {
+        CaseViewTab caseViewTab = new CaseViewTab();
+        caseViewTab.setOrder(order);
+        caseViewTab.setId(id);
+        caseViewTab.setLabel(label);
+        return caseViewTab;
     }
 
     private CaseEvent createEvent(String s) {
@@ -108,6 +153,7 @@ public class CoreCaseService {
         event.setTimestamp(LocalDateTime.now());
         event.setUserFirstName("First");
         event.setUserLastName("Last");
+        event.setEventId("Hardcoded TODO");
         event.setUserId(new Random().nextLong());
         return event;
     }
