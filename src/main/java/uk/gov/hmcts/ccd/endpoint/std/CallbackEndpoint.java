@@ -10,6 +10,7 @@ import uk.gov.hmcts.ccd.domain.model.definition.Document;
 import java.util.List;
 
 @RestController
+@CrossOrigin
 @RequestMapping(path = "/callback/",
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)

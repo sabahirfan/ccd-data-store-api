@@ -1,17 +1,14 @@
 package uk.gov.hmcts.ccd.endpoint.ui;
 
+import static org.springframework.http.HttpHeaders.AUTHORIZATION;
+
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiResponse;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.*;
 
-import javax.inject.Inject;
-
-
-import static org.springframework.http.HttpHeaders.AUTHORIZATION;
-
 @RestController
+@CrossOrigin
 public class UserProfileEndpoint {
     private static final String BEARER = "Bearer ";
 
