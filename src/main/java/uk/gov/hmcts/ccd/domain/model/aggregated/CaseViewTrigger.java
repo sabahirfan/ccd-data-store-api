@@ -6,6 +6,16 @@ public class CaseViewTrigger {
     private String description;
     private Integer order;
 
+    public CaseViewTrigger(String id, String name, String description, Integer order) {
+        this.id = id;
+        this.name = name;
+        this.description = description;
+        this.order = order;
+    }
+
+    public CaseViewTrigger() {
+    }
+
     public String getId() {
         return id;
     }

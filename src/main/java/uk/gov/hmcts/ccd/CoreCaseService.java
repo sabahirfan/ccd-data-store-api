@@ -79,7 +79,7 @@ public class CoreCaseService {
         caseView.setCaseId(caseId);
         caseView.setTabs(ReflectionUtils.generateCaseViewTabs(caseClass));
         caseView.setChannels(getChannels());
-        caseView.setTriggers(getTriggers());
+        caseView.setTriggers(getTriggers(caseId));
 
         caseView.setState(application.getCaseState(caseId));
         CaseViewType caseType = new CaseViewType();
@@ -96,15 +96,8 @@ public class CoreCaseService {
         return caseView;
     }
 
-    private CaseViewTrigger[] getTriggers() {
-        CaseViewTrigger[] caseViewTriggers = new CaseViewTrigger[1];
-        CaseViewTrigger caseViewTrigger = new CaseViewTrigger();
-        caseViewTrigger.setId("MoreTimeRequestPaper");
-        caseViewTrigger.setName("More time request paper");
-        caseViewTrigger.setOrder(1);
-
-        caseViewTriggers[0] = caseViewTrigger;
-        return caseViewTriggers;
+    private CaseViewTrigger[] getTriggers(String caseId) {
+        return (CaseViewTrigger[]) application.getTriggers(caseId).toArray();
     }
 
     private String[] getChannels() {
