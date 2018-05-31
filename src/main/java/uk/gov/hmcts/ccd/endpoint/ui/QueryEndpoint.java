@@ -127,9 +127,9 @@ public class QueryEndpoint {
         metadata.setSecurityClassification(param(params, MetaData.SECURITY_CLASSIFICATION_PARAM));
         metadata.setPage(param(params, MetaData.PAGE_PARAM));
 
-        Map<String, String> sanitized = fieldMapSanitizeOperation.execute(params);
+        Map<String, String> customSearch = fieldMapSanitizeOperation.execute(params);
 
-        return application.search();
+        return application.search(customSearch);
     }
 
     private Optional<String> param(Map<String, String> queryParameters, String param) {

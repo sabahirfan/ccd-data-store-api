@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.Map;
 
 @Configuration
 @Service
@@ -130,13 +131,13 @@ public class CoreCaseService {
         }).toArray(WorkbasketInput[]::new);
     }
 
-    public SearchResultView search() {
+    public SearchResultView search(Map<String, String> criteria) {
         SearchResultViewColumn[] columns = ReflectionUtils.generateFields(caseClass).stream().map(x ->
                 new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 
         ObjectMapper mapper = new ObjectMapper();
-        List<ICase> cases = application.getCases();
+        List<ICase> cases = application.getCases(criteria);
         SearchResultViewItem[] items = cases.stream().map(x -> {
             return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(x));
         }).toArray(SearchResultViewItem[]::new);

@@ -437,7 +437,8 @@ public class CaseDetailsEndpoint {
                                                                   @RequestParam Map<String, String> queryParameters) {
         PaginatedSearchMetadata metadata = new PaginatedSearchMetadata();
         metadata.setTotalPagesCount(1);
-        metadata.setTotalResultsCount(service.search().getSearchResultViewItems().length);
+        // todo: pass actual search criteria
+        metadata.setTotalResultsCount(service.search(null).getSearchResultViewItems().length);
         return metadata;
     }
 
