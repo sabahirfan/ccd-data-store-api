@@ -162,9 +162,6 @@ dependencies {
 
     compile("org.springframework.boot:spring-boot-starter")
 
-    compile(group: 'org.springframework.boot', name: 'spring-boot-starter-jdbc') {
-        exclude group: 'org.apache.tomcat', module: 'tomcat-jdbc'
-    }
     compile("org.springframework.boot:spring-boot-starter-cache")
     compile group: 'com.hazelcast', name: 'hazelcast'
     compile group: 'com.hazelcast', name: 'hazelcast-spring'
@@ -184,7 +181,6 @@ dependencies {
 
     // FIXME 0.6 doesn't support jsonb; 0.7 doesn't work on Windows
 //    runtime group: 'com.impossibl.pgjdbc-ng', name: 'pgjdbc-ng', version: '0.6'
-    runtime group: 'org.postgresql', name: 'postgresql', version: '42.2.2'
     runtime group: 'com.zaxxer', name: 'HikariCP', version: '2.7.8'
 
     testCompile "junit:junit"
