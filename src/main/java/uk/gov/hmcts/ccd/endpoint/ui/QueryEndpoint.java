@@ -50,7 +50,7 @@ import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_RE
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_UPDATE;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3451", allowCredentials = "true")
 @RequestMapping(path = "/aggregated",
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)

@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.*;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3451", allowCredentials = "true")
 public class UserProfileEndpoint {
     private static final String BEARER = "Bearer ";
 
@@ -16,7 +16,6 @@ public class UserProfileEndpoint {
     @RequestMapping(value = "/data/caseworkers/{uid}/profile", method = RequestMethod.GET)
     @ApiOperation(value = "Get default setting for user")
     @ApiResponse(code = 200, message = "User default settings")
-    @CrossOrigin
     public UserProfile getUserProfile(@RequestHeader(value = AUTHORIZATION, defaultValue = "fake") final String authHeader) {
         UserProfile profile = new UserProfile();
         JurisdictionDisplayProperties prop = new JurisdictionDisplayProperties();
