@@ -6,13 +6,15 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import uk.gov.hmcts.ccd.definition.CaseListField;
+import uk.gov.hmcts.ccd.definition.CaseSearchableField;
 import uk.gov.hmcts.ccd.definition.CaseViewField;
 import uk.gov.hmcts.ccd.definition.CaseViewTabs;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
+import uk.gov.hmcts.ccd.domain.model.search.Field;
+import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 
-import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -22,24 +24,47 @@ import java.util.Map;
 
 public class ReflectionUtils {
     private static ImmutableMap<String, String> typeMap = ImmutableMap.of(
-            "String", "Text"
+        "String", "Text"
     );
+
     public static List<CaseField> generateFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
-        for (Field field : c.getDeclaredFields()) {
+        for (java.lang.reflect.Field field : c.getDeclaredFields()) {
             CaseListField cf = field.getAnnotation(CaseListField.class);
             if (cf != null) {
                 CaseField caseField = new CaseField();
                 caseField.setId(field.getName());
-                FieldType type = new FieldType();
-                String typeId = typeMap.get(field.getType().getSimpleName());
-                type.setId(typeId);
-                type.setType(typeId);
+                FieldType type = getFieldType(field);
                 caseField.setFieldType(type);
                 caseField.setLabel(cf.label());
                 result.add(caseField);
             }
         }
+
+        return result;
+    }
+
+    public static List<WorkbasketInput> generateWorkbasketInputs(Class c) {
+        List<WorkbasketInput> result = Lists.newArrayList();
+
+        for (java.lang.reflect.Field field : c.getDeclaredFields()) {
+            CaseSearchableField annotation = field.getAnnotation(CaseSearchableField.class);
+            if (annotation != null) {
+                WorkbasketInput workbasketInput = new WorkbasketInput();
+
+                workbasketInput.setLabel(annotation.label());
+                workbasketInput.setOrder(annotation.order());
+                workbasketInput.setField(
+                    new Field(
+                        field.getName(),
+                        getFieldType(field)
+                    )
+                );
+
+                result.add(workbasketInput);
+            }
+        }
+
         return result;
     }
 
@@ -78,9 +103,9 @@ public class ReflectionUtils {
             caseViewTabs.put(tab, caseViewTab);
         }
 
-        Field[] declaredFields = caseClass.getDeclaredFields();
+        java.lang.reflect.Field[] declaredFields = caseClass.getDeclaredFields();
         for (int i = 0; i < declaredFields.length; i++) {
-            Field declaredField = declaredFields[i];
+            java.lang.reflect.Field declaredField = declaredFields[i];
             CaseViewField cf = declaredField.getAnnotation(CaseViewField.class);
             if (cf != null) {
                 for (String tab : cf.tab()) {
@@ -111,4 +136,11 @@ public class ReflectionUtils {
         return caseViewTabs.values().toArray(caseViewTabsArr);
     }
 
+    private static FieldType getFieldType(java.lang.reflect.Field field) {
+        FieldType type = new FieldType();
+        String typeId = typeMap.get(field.getType().getSimpleName());
+        type.setId(typeId);
+        type.setType(typeId);
+        return type;
+    }
 }
