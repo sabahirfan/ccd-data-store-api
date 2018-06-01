@@ -1,6 +1,7 @@
 package uk.gov.hmcts.ccd.domain.model.definition;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonNode;
 import io.swagger.annotations.ApiModel;
 import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
 
@@ -29,6 +30,7 @@ public class CaseField implements Serializable {
     private String showConditon = null;
     @JsonProperty("acls")
     private List<AccessControlList> accessControlLists;
+    private JsonNode value;
 
     public String getId() {
         return id;
@@ -108,6 +110,13 @@ public class CaseField implements Serializable {
 
     public List<AccessControlList> getAccessControlLists() {
         return accessControlLists;
+    }
+    public JsonNode getValue() {
+        return value;
+    }
+
+    public void setValue(JsonNode value) {
+        this.value = value;
     }
 
     public void setAccessControlLists(List<AccessControlList> accessControlLists) {

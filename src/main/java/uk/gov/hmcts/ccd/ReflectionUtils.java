@@ -1,13 +1,10 @@
 package uk.gov.hmcts.ccd;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
@@ -140,7 +137,14 @@ public class ReflectionUtils {
                     if (fields == null) {
                         fields = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField[1];
                     }
-                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = getCaseViewField(c, i, declaredField, cf);
+                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = getCaseViewField(c,declaredField);
+                    if (null == caseViewField) {
+                        continue;
+                    }
+
+                    caseViewField.setOrder(i + 1);
+                    caseViewField.setLabel(cf.label());
+                    caseViewField.setId(cf.label());
 
                     fields[fields.length - 1] = caseViewField;
                     caseViewTab.setFields(fields);
@@ -155,18 +159,25 @@ public class ReflectionUtils {
 
     private static uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField
     getCaseViewField(
-            ICase c, int i,
-            java.lang.reflect.Field declaredField,
-            CaseViewField cf
+            ICase c,
+            java.lang.reflect.Field declaredField
     ) {
+        String t = determineFieldType(declaredField);
+        if (t.equals("Complex")) {
+            try {
+                declaredField.setAccessible(true);
+                return mapComplexType(declaredField.get(c));
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+        }
+        if (t.equals("Unknown")) {
+            return null;
+        }
         uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
-        caseViewField.setId(cf.label());
         FieldType fieldType = new FieldType();
         fieldType.setType(determineFieldType(declaredField));
-        fieldType.setId("foo");
         caseViewField.setFieldType(fieldType);
-        caseViewField.setOrder(i + 1);
-        caseViewField.setLabel(cf.label());
         ObjectMapper m = new ObjectMapper();
         try {
             declaredField.setAccessible(true);
@@ -185,15 +196,47 @@ public class ReflectionUtils {
             case "Long":
                 return "Number";
         }
-        throw new RuntimeException("unsupported type " + declaredField.getType());
+        if (declaredField.getAnnotation(ComplexType.class) != null) {
+            return "Complex";
+        }
+        return "Unknown";
     }
 
 
     private static FieldType getFieldType(java.lang.reflect.Field field) {
         FieldType type = new FieldType();
-        String typeId = typeMap.get(field.getType().getSimpleName());
+        String typeId = determineFieldType(field);
         type.setId(typeId);
         type.setType(typeId);
         return type;
+    }
+
+    public static uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField mapComplexType(Object instance) {
+        uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField result = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
+        FieldType type = new FieldType();
+        type.setType("Complex");
+        result.setFieldType(type);
+        List<CaseField> complexFields = Lists.newArrayList();
+        type.setComplexFields(complexFields);
+        for (java.lang.reflect.Field field : instance.getClass().getDeclaredFields()) {
+            FieldType fieldType = getFieldType(field);
+            if (fieldType.getType().equals("Unknown")) {
+                continue;
+            }
+            field.setAccessible(true);
+            Object value = null;
+            try {
+                value = field.get(instance);
+            } catch (IllegalAccessException e) {
+                throw new RuntimeException(e);
+            }
+            CaseField f = new CaseField();
+            f.setFieldType(fieldType);
+            f.setId(field.getName());
+            f.setValue(new ObjectMapper().valueToTree(value));
+            complexFields.add(f);
+        }
+
+        return result;
     }
 }
