@@ -1,11 +1,13 @@
 package uk.gov.hmcts.ccd;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeFactory;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
@@ -113,7 +115,8 @@ public class ReflectionUtils {
         }
     }
 
-    public static CaseViewTab[] generateCaseViewTabs(Class caseClass) {
+    public static CaseViewTab[] generateCaseViewTabs(ICase c) {
+        Class caseClass = c.getClass();
         Map<String, CaseViewTab> caseViewTabs = new HashMap<>();
         CaseViewTabs annotation = (CaseViewTabs) caseClass.getAnnotation(CaseViewTabs.class);
         String[] caseTabs = annotation.value();
@@ -137,16 +140,7 @@ public class ReflectionUtils {
                     if (fields == null) {
                         fields = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField[1];
                     }
-                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
-                    caseViewField.setId(cf.label());
-                    FieldType fieldType = new FieldType();
-                    fieldType.setType(cf.type());
-                    caseViewField.setFieldType(fieldType);
-                    caseViewField.setOrder(i + 1);
-                    caseViewField.setLabel(cf.label());
-                    ObjectNode jsonNodes = JsonNodeFactory.instance.objectNode();
-                    jsonNodes.put("var", "var");
-                    caseViewField.setValue(jsonNodes);
+                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = getCaseViewField(c, i, declaredField, cf);
 
                     fields[fields.length - 1] = caseViewField;
                     caseViewTab.setFields(fields);
@@ -158,6 +152,42 @@ public class ReflectionUtils {
         CaseViewTab[] caseViewTabsArr = new CaseViewTab[1];
         return caseViewTabs.values().toArray(caseViewTabsArr);
     }
+
+    private static uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField
+    getCaseViewField(
+            ICase c, int i,
+            java.lang.reflect.Field declaredField,
+            CaseViewField cf
+    ) {
+        uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
+        caseViewField.setId(cf.label());
+        FieldType fieldType = new FieldType();
+        fieldType.setType(determineFieldType(declaredField));
+        fieldType.setId("foo");
+        caseViewField.setFieldType(fieldType);
+        caseViewField.setOrder(i + 1);
+        caseViewField.setLabel(cf.label());
+        ObjectMapper m = new ObjectMapper();
+        try {
+            declaredField.setAccessible(true);
+            caseViewField.setValue(m.valueToTree(declaredField.get(c)));
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        return caseViewField;
+    }
+
+    private static String determineFieldType(java.lang.reflect.Field declaredField) {
+        switch (declaredField.getType().getSimpleName()) {
+            case "String":
+                return "Text";
+            case "Integer":
+            case "Long":
+                return "Number";
+        }
+        throw new RuntimeException("unsupported type " + declaredField.getType());
+    }
+
 
     private static FieldType getFieldType(java.lang.reflect.Field field) {
         FieldType type = new FieldType();
