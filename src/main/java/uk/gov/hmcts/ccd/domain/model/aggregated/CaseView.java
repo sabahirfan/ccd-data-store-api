@@ -1,7 +1,9 @@
 package uk.gov.hmcts.ccd.domain.model.aggregated;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class CaseView {
     @JsonProperty("case_id")
     private String caseId;

@@ -11,6 +11,7 @@ import uk.gov.hmcts.ccd.definition.CaseSearchableField;
 import uk.gov.hmcts.ccd.definition.CaseViewField;
 import uk.gov.hmcts.ccd.definition.CaseViewTabs;
 import uk.gov.hmcts.ccd.definition.ComplexType;
+import uk.gov.hmcts.ccd.definition.FieldLabel;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
@@ -291,7 +292,17 @@ public class ReflectionUtils {
             }
             f.setFieldType(fieldType);
             f.setId(field.getName());
-            f.setValue(new ObjectMapper().valueToTree(value));
+            if (fieldType.getType().equals("Complex")) {
+                uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField complex = mapComplexType(value);
+
+                FieldType cType = new FieldType();
+                cType.setId(field.getName());
+                cType.setType("Complex");
+                cType.setComplexFields(complex.getFieldType().getComplexFields());
+                f.setFieldType(cType);
+            } else {
+                f.setValue(new ObjectMapper().valueToTree(value));
+            }
             complexFields.add(f);
         }
 
