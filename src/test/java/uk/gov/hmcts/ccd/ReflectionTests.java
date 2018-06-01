@@ -9,6 +9,7 @@ import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.*;
+import uk.gov.hmcts.ccd.types.nested.WithSubClass;
 
 import java.util.List;
 import java.util.Map;
@@ -40,19 +41,18 @@ public class ReflectionTests {
 
         CaseField second = result.get(1);
         assertThat(second.getFieldType().getType()).isEqualTo("Text");
-        assertThat(second.getId()).isEqualTo("sub");
-        assertThat(second.getLabel()).isEqualTo("Sub!");
+        assertThat(second.getId()).isEqualTo("line1");
+        assertThat(second.getLabel()).isEqualTo("Nested field");
     }
 
     @Test
     public void getsView() {
         WithSubClass w = new WithSubClass();
-        w.subClass = new SubClass();
         Map<String, Object> result = ReflectionUtils.getCaseListViewModel(w);
         assertThat(result.size()).isEqualTo(2);
         assertThat(result).isEqualTo(ImmutableMap.of(
             "fooBar", "foo",
-            "sub", "bar"
+            "line1", "test line 1"
         ));
     }
 
