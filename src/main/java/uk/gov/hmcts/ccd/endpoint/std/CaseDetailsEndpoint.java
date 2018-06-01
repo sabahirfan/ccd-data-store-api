@@ -37,7 +37,7 @@ import java.util.Optional;
 import static java.util.stream.Collectors.toList;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3451", allowCredentials = "true")
 @RequestMapping(path = "/",
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)

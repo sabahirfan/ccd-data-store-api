@@ -18,6 +18,8 @@ import uk.gov.hmcts.ccd.domain.model.definition.CaseState;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
 import uk.gov.hmcts.ccd.domain.model.definition.WizardPage;
 import uk.gov.hmcts.ccd.domain.model.definition.WizardPageField;
+import uk.gov.hmcts.ccd.domain.model.search.Field;
+import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultViewColumn;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultViewItem;
@@ -158,6 +160,10 @@ public class CoreCaseService {
             return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(ReflectionUtils.getCaseView(x)));
         }).toArray(SearchResultViewItem[]::new);
         return new SearchResultView(columns, items);
+    }
+
+    public SearchInput[] searchInputs() {
+        return ReflectionUtils.generateSearchInputs(caseClass).toArray(new SearchInput[0]);
     }
 
     public void onCaseCreated(JsonNode node) throws JsonProcessingException {
