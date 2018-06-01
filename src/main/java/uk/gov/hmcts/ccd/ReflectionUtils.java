@@ -5,10 +5,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
-import uk.gov.hmcts.ccd.definition.CaseListField;
-import uk.gov.hmcts.ccd.definition.CaseSearchableField;
-import uk.gov.hmcts.ccd.definition.CaseViewField;
-import uk.gov.hmcts.ccd.definition.CaseViewTabs;
+import com.google.common.collect.Maps;
+import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
@@ -38,9 +36,34 @@ public class ReflectionUtils {
                 caseField.setFieldType(type);
                 caseField.setLabel(cf.label());
                 result.add(caseField);
+            } else {
+                if (field.getAnnotation(ComplexType.class) != null) {
+                    result.addAll(generateFields(field.getType()));
+                }
             }
         }
 
+        return result;
+    }
+
+    public static Map<String, Object> getCaseView(Object c) {
+
+        Map<String, Object> result = Maps.newHashMap();
+        try {
+        for (java.lang.reflect.Field field : c.getClass().getDeclaredFields()) {
+            CaseListField cf = field.getAnnotation(CaseListField.class);
+            field.setAccessible(true);
+            if (cf != null) {
+                    result.put(field.getName(), field.get(c));
+            } else {
+                if (field.getAnnotation(ComplexType.class) != null) {
+                    result.putAll(getCaseView(field.get(c)));
+                }
+            }
+        }
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
         return result;
     }
 
@@ -131,7 +154,7 @@ public class ReflectionUtils {
                 }
             }
         }
-        
+
         CaseViewTab[] caseViewTabsArr = new CaseViewTab[1];
         return caseViewTabs.values().toArray(caseViewTabsArr);
     }

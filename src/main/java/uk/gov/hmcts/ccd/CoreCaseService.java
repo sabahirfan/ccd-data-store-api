@@ -148,7 +148,7 @@ public class CoreCaseService {
         ObjectMapper mapper = new ObjectMapper();
         List<ICase> cases = application.getCases(criteria);
         SearchResultViewItem[] items = cases.stream().map(x -> {
-            return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(x));
+            return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(ReflectionUtils.getCaseView(x)));
         }).toArray(SearchResultViewItem[]::new);
         return new SearchResultView(columns, items);
     }
