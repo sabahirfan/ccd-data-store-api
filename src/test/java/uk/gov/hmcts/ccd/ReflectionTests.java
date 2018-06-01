@@ -21,7 +21,7 @@ public class ReflectionTests {
 
     @Test
     public void generatesCaseField() {
-        List<CaseField> result = ReflectionUtils.generateFields(TwoFields.class);
+        List<CaseField> result = ReflectionUtils.getCaseListFields(TwoFields.class);
         assertThat(result.size()).isEqualTo(1);
         CaseField first = result.get(0);
         assertThat(first.getFieldType().getType()).isEqualTo("Text");
@@ -31,7 +31,7 @@ public class ReflectionTests {
 
     @Test
     public void extractsSubClassFields() {
-        List<CaseField> result = ReflectionUtils.generateFields(WithSubClass.class);
+        List<CaseField> result = ReflectionUtils.getCaseListFields(WithSubClass.class);
         assertThat(result.size()).isEqualTo(2);
         CaseField first = result.get(0);
         assertThat(first.getFieldType().getType()).isEqualTo("Text");
@@ -48,7 +48,7 @@ public class ReflectionTests {
     public void getsView() {
         WithSubClass w = new WithSubClass();
         w.subClass = new SubClass();
-        Map<String, Object> result = ReflectionUtils.getCaseView(w);
+        Map<String, Object> result = ReflectionUtils.getCaseListViewModel(w);
         assertThat(result.size()).isEqualTo(2);
         assertThat(result).isEqualTo(ImmutableMap.of(
             "fooBar", "foo",

@@ -1,7 +1,6 @@
 package uk.gov.hmcts.ccd;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -30,11 +29,8 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
-    private static ImmutableMap<String, String> typeMap = ImmutableMap.of(
-            "String", "Text"
-    );
 
-    public static List<CaseField> generateFields(Class c) {
+    public static List<CaseField> getCaseListFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
         for (java.lang.reflect.Field field : c.getDeclaredFields()) {
             CaseListField cf = field.getAnnotation(CaseListField.class);
@@ -47,7 +43,7 @@ public class ReflectionUtils {
                 result.add(caseField);
             } else {
                 if (field.getAnnotation(ComplexType.class) != null) {
-                    result.addAll(generateFields(field.getType()));
+                    result.addAll(getCaseListFields(field.getType()));
                 }
             }
         }
@@ -55,8 +51,11 @@ public class ReflectionUtils {
         return result;
     }
 
-    public static Map<String, Object> getCaseView(Object c) {
-
+    /**
+     * Get a view model for the case list consisting of a flattened
+     * map of all the fields the list needs.
+     */
+    public static Map<String, Object> getCaseListViewModel(Object c) {
         Map<String, Object> result = Maps.newHashMap();
         try {
             for (java.lang.reflect.Field field : c.getClass().getDeclaredFields()) {
@@ -66,7 +65,7 @@ public class ReflectionUtils {
                     result.put(field.getName(), field.get(c));
                 } else {
                     if (field.getAnnotation(ComplexType.class) != null) {
-                        result.putAll(getCaseView(field.get(c)));
+                        result.putAll(getCaseListViewModel(field.get(c)));
                     }
                 }
             }

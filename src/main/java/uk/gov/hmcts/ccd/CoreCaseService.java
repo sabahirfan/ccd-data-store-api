@@ -14,7 +14,6 @@ import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewJurisdiction;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewType;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseEvent;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseState;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
@@ -59,7 +58,7 @@ public class CoreCaseService {
         result.setId(config.getCaseTypeId());
         result.setName(config.getCaseTypeId());
         result.setDescription(config.getCaseTypeId());
-        result.setCaseFields(ReflectionUtils.generateFields(caseClass));
+        result.setCaseFields(ReflectionUtils.getCaseListFields(caseClass));
 
         List<CaseState> states = Lists.newArrayList();
         ReflectionUtils.extractStates(caseClass).stream().forEach(x -> states.add(createState(x.toString())));
@@ -154,13 +153,13 @@ public class CoreCaseService {
     }
 
     public SearchResultView search(Map<String, String> criteria) {
-        SearchResultViewColumn[] columns = ReflectionUtils.generateFields(caseClass).stream().map(x ->
+        SearchResultViewColumn[] columns = ReflectionUtils.getCaseListFields(caseClass).stream().map(x ->
                 new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 
         List<ICase> cases = application.getCases(criteria);
         SearchResultViewItem[] items = cases.stream().map(x -> {
-            return new SearchResultViewItem(x.getCaseId(), objectMapper.valueToTree(ReflectionUtils.getCaseView(x)));
+            return new SearchResultViewItem(x.getCaseId(), objectMapper.valueToTree(ReflectionUtils.getCaseListViewModel(x)));
         }).toArray(SearchResultViewItem[]::new);
         return new SearchResultView(columns, items);
     }
