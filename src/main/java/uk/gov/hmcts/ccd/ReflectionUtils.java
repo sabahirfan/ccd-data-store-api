@@ -250,6 +250,10 @@ public class ReflectionUtils {
             case "Integer":
             case "Long":
                 return "Number";
+            case "LocalDate":
+            case "LocalDateTime":
+            case "Date":
+                return "Date";
         }
         if (declaredField.getAnnotation(ComplexType.class) != null) {
             return "Complex";

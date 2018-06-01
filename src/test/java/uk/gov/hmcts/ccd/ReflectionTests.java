@@ -85,6 +85,15 @@ public class ReflectionTests {
     }
 
     @Test
+    public void extractsDate() {
+        List<CaseField> fields = ReflectionUtils.getCaseListFields(HasDate.class);
+        assertThat(fields.size()).isEqualTo(3);
+        assertThat(fields.get(0).getFieldType().getType()).isEqualTo("Date");
+        assertThat(fields.get(1).getFieldType().getType()).isEqualTo("Date");
+        assertThat(fields.get(2).getFieldType().getType()).isEqualTo("Date");
+    }
+
+    @Test
     public void testRhubarbTabView() {
         CaseViewTab[] result = ReflectionUtils.generateCaseViewTabs(new FakeCase("defendantName", "prosecutorName"));
         assertThat(result.length).isEqualTo(3);
