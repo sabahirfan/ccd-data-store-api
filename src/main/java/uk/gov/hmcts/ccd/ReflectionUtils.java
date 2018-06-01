@@ -88,7 +88,7 @@ public class ReflectionUtils {
                         .filter(e -> e.event().equals(eventId))
                         .map(e -> {
                             uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField cvf = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
-                            cvf.setId(e.label());
+                            cvf.setId(f.getName());
                             cvf.setFieldType(getFieldType(f));
                             cvf.setOrder(e.order());
                             cvf.setLabel(e.label());
