@@ -159,6 +159,8 @@ dependencies {
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-httpcomponents', version: reformLogging
     compile group: 'uk.gov.hmcts.reform', name: 'java-logging-spring', version: reformLogging
     compile "org.slf4j:slf4j-api:1.7.25"
+    compileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.22'
+    testCompileOnly group: 'org.projectlombok', name: 'lombok', version: '1.16.22'
 
     compile("org.springframework.boot:spring-boot-starter")
 
