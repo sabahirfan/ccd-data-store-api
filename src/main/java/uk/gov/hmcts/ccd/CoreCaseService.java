@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
@@ -18,7 +19,6 @@ import uk.gov.hmcts.ccd.domain.model.definition.CaseState;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
 import uk.gov.hmcts.ccd.domain.model.definition.WizardPage;
 import uk.gov.hmcts.ccd.domain.model.definition.WizardPageField;
-import uk.gov.hmcts.ccd.domain.model.search.Field;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultViewColumn;
@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -43,6 +42,9 @@ public class CoreCaseService {
     private final ICCDApplication application;
     private final CCDAppConfig config;
     private final Class caseClass;
+
+    @Autowired
+    private ObjectMapper objectMapper;
 
     public CoreCaseService(CCDAppConfig config, ICCDApplication application) {
         this.config = config;
@@ -154,10 +156,9 @@ public class CoreCaseService {
                 new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 
-        ObjectMapper mapper = new ObjectMapper();
         List<ICase> cases = application.getCases(criteria);
         SearchResultViewItem[] items = cases.stream().map(x -> {
-            return new SearchResultViewItem(x.getCaseId(), mapper.valueToTree(ReflectionUtils.getCaseView(x)));
+            return new SearchResultViewItem(x.getCaseId(), objectMapper.valueToTree(ReflectionUtils.getCaseView(x)));
         }).toArray(SearchResultViewItem[]::new);
         return new SearchResultView(columns, items);
     }
@@ -167,7 +168,7 @@ public class CoreCaseService {
     }
 
     public void onCaseCreated(JsonNode node) throws JsonProcessingException {
-        ICase c = (ICase) new ObjectMapper().treeToValue(node, caseClass);
+        ICase c = (ICase) objectMapper.treeToValue(node, caseClass);
         application.saveCase(c);
     }
 
