@@ -167,9 +167,9 @@ public class CoreCaseService {
         return ReflectionUtils.generateSearchInputs(caseClass).toArray(new SearchInput[0]);
     }
 
-    public void onCaseCreated(JsonNode node) throws JsonProcessingException {
+    public String onCaseCreated(JsonNode node) throws JsonProcessingException {
         ICase c = (ICase) objectMapper.treeToValue(node, caseClass);
-        application.saveCase(c);
+        return application.saveCase(c);
     }
 
     public CaseEventTrigger getCaseEventTrigger(String caseId, String eventTriggerId) {

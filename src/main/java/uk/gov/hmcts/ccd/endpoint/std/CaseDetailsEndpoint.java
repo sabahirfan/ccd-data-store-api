@@ -221,8 +221,11 @@ public class CaseDetailsEndpoint {
 
         ObjectMapper mapper = new ObjectMapper();
         JsonNode node = mapper.valueToTree(content.getData());
-        service.onCaseCreated(node);
-        return new CaseDetails();
+        String id = service.onCaseCreated(node);
+
+        CaseDetails caseDetails = new CaseDetails();
+        caseDetails.setReference(Long.valueOf(id));
+        return caseDetails;
     }
 
     @RequestMapping(value = "/citizens/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
