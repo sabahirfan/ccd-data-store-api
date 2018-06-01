@@ -84,7 +84,8 @@ public class QueryEndpoint {
         @ApiResponse(code = 404, message = "No case types found for given access criteria")})
     public List<CaseType> getCaseTypes(@PathVariable("jid") final String jurisdictionId,
                                        @RequestParam(value = "access", required = true) String access) {
-        return Lists.newArrayList(application.getCaseType());
+        CaseType caseType = application.getCaseType();
+        return Lists.newArrayList(caseType);
     }
 
 
@@ -121,10 +122,9 @@ public class QueryEndpoint {
         @ApiResponse(code = 200, message = "Search Input data found for the given case type and jurisdiction"),
         @ApiResponse(code = 404, message = "No SearchInput found for the given case type and jurisdiction")
     })
-    public SearchInput[] findSearchInputDetails(@PathVariable("uid") final Integer uid,
-                                                @PathVariable("jid") final String jurisdictionId,
+    public SearchInput[] findSearchInputDetails(@PathVariable("jid") final String jurisdictionId,
                                                 @PathVariable("ctid") final String caseTypeId) {
-        throw new RuntimeException("not implemented");
+        return application.searchInputs();
     }
 
 

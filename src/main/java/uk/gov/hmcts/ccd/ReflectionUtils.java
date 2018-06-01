@@ -6,11 +6,16 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import uk.gov.hmcts.ccd.definition.*;
+import uk.gov.hmcts.ccd.definition.CaseListField;
+import uk.gov.hmcts.ccd.definition.CaseSearchableField;
+import uk.gov.hmcts.ccd.definition.CaseViewField;
+import uk.gov.hmcts.ccd.definition.CaseViewTabs;
+import uk.gov.hmcts.ccd.definition.ComplexType;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 import uk.gov.hmcts.ccd.domain.model.search.Field;
+import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 
 import java.lang.reflect.Method;
@@ -22,7 +27,7 @@ import java.util.Map;
 
 public class ReflectionUtils {
     private static ImmutableMap<String, String> typeMap = ImmutableMap.of(
-        "String", "Text"
+            "String", "Text"
     );
 
     public static List<CaseField> generateFields(Class c) {
@@ -50,17 +55,17 @@ public class ReflectionUtils {
 
         Map<String, Object> result = Maps.newHashMap();
         try {
-        for (java.lang.reflect.Field field : c.getClass().getDeclaredFields()) {
-            CaseListField cf = field.getAnnotation(CaseListField.class);
-            field.setAccessible(true);
-            if (cf != null) {
+            for (java.lang.reflect.Field field : c.getClass().getDeclaredFields()) {
+                CaseListField cf = field.getAnnotation(CaseListField.class);
+                field.setAccessible(true);
+                if (cf != null) {
                     result.put(field.getName(), field.get(c));
-            } else {
-                if (field.getAnnotation(ComplexType.class) != null) {
-                    result.putAll(getCaseView(field.get(c)));
+                } else {
+                    if (field.getAnnotation(ComplexType.class) != null) {
+                        result.putAll(getCaseView(field.get(c)));
+                    }
                 }
             }
-        }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -78,13 +83,35 @@ public class ReflectionUtils {
                 workbasketInput.setLabel(annotation.label());
                 workbasketInput.setOrder(annotation.order());
                 workbasketInput.setField(
-                    new Field(
-                        field.getName(),
-                        getFieldType(field)
-                    )
+                        new Field(
+                                field.getName(),
+                                getFieldType(field)
+                        )
                 );
 
                 result.add(workbasketInput);
+            }
+        }
+
+        return result;
+    }
+
+    public static List<SearchInput> generateSearchInputs(Class c) {
+        List<SearchInput> result = Lists.newArrayList();
+
+        for (java.lang.reflect.Field field : c.getDeclaredFields()) {
+            CaseSearchableField annotation = field.getAnnotation(CaseSearchableField.class);
+            if (annotation != null) {
+                SearchInput searchInput = new SearchInput(
+                        new Field(
+                                field.getName()
+                                , getFieldType(field)
+                        ),
+                        annotation.label(),
+                        annotation.order()
+                );
+
+                result.add(searchInput);
             }
         }
 
