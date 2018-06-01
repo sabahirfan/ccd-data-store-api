@@ -38,10 +38,10 @@ import static java.util.stream.Collectors.toList;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:3451", allowCredentials = "true")
-@RequestMapping(path = "/",
+@RequestMapping(path = "/data",
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
-@Api(value = "/", description = "Standard case API")
+@Api(value = "/data", description = "Standard case API")
 public class CaseDetailsEndpoint {
     private final AppInsights appInsights;
     private final FieldMapSanitizeOperation fieldMapSanitizeOperation;
@@ -71,7 +71,7 @@ public class CaseDetailsEndpoint {
     })
     public CaseDetails findCaseDetailsForCaseworker(
         @ApiParam(value = "Idam user ID", required = true)
-        @PathVariable("uid") final Integer uid,
+        @PathVariable("uid") final String uid,
         @ApiParam(value = "Jurisdiction ID", required = true)
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
@@ -92,7 +92,7 @@ public class CaseDetailsEndpoint {
     })
     public CaseDetails findCaseDetailsForCitizen(
         @ApiParam(value = "Idam user ID", required = true)
-        @PathVariable("uid") final Integer uid,
+        @PathVariable("uid") final String uid,
         @ApiParam(value = "Jurisdiction ID", required = true)
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
@@ -113,7 +113,7 @@ public class CaseDetailsEndpoint {
     })
     public StartEventTrigger startEventForCaseworker(
         @ApiParam(value = "Idam user ID", required = true)
-        @PathVariable("uid") final Integer uid,
+        @PathVariable("uid") final String uid,
         @ApiParam(value = "Jurisdiction ID", required = true)
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
@@ -125,7 +125,7 @@ public class CaseDetailsEndpoint {
         @ApiParam(value = "Should `AboutToStart` callback warnings be ignored")
         @RequestParam(value = "ignore-warning", required = false) final Boolean ignoreWarning) {
 
-        throw new RuntimeException("not implemented");
+        throw new RuntimeException("startEventForCaseworker not implemented");
     }
 
 
@@ -138,7 +138,7 @@ public class CaseDetailsEndpoint {
     })
     public StartEventTrigger startEventForCitizen(
         @ApiParam(value = "Idam user ID", required = true)
-        @PathVariable("uid") final Integer uid,
+        @PathVariable("uid") final String uid,
         @ApiParam(value = "Jurisdiction ID", required = true)
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
@@ -162,7 +162,7 @@ public class CaseDetailsEndpoint {
     })
     public StartEventTrigger startCaseForCaseworker(
         @ApiParam(value = "Idam user ID", required = true)
-        @PathVariable("uid") final Integer uid,
+        @PathVariable("uid") final String uid,
         @ApiParam(value = "Jurisdiction ID", required = true)
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
@@ -184,7 +184,7 @@ public class CaseDetailsEndpoint {
     })
     public StartEventTrigger startCaseForCitizen(
         @ApiParam(value = "Idam user ID", required = true)
-        @PathVariable("uid") final Integer uid,
+        @PathVariable("uid") final String uid,
         @ApiParam(value = "Jurisdiction ID", required = true)
         @PathVariable("jid") final String jurisdictionId,
         @ApiParam(value = "Case type ID", required = true)
@@ -197,7 +197,7 @@ public class CaseDetailsEndpoint {
         throw new RuntimeException("not implemented");
     }
 
-    @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
+    @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.CREATED)
     @ApiOperation(
         value = "Submit case creation as Case worker",
@@ -253,7 +253,7 @@ public class CaseDetailsEndpoint {
         throw new RuntimeException("not implemented");
     }
 
-    @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/validate", method = RequestMethod.POST)
+    @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/validate", method = RequestMethod.POST)
     @ResponseStatus(HttpStatus.OK)
     @ApiOperation(
         value = "Validate a set of fields as Case worker",
@@ -318,8 +318,12 @@ public class CaseDetailsEndpoint {
         @PathVariable("ctid") final String caseTypeId,
         @ApiParam(value = "Case ID", required = true)
         @PathVariable("cid") final String caseId,
-        @RequestBody final CaseDataContent content) {
-        throw new RuntimeException("not implemented");
+        @RequestBody final CaseDataContent content
+    ) {
+        System.out.println(content.getData());
+
+        service.handleTrigger(caseId, content);
+        return new CaseDetails();
     }
 
 
@@ -390,7 +394,7 @@ public class CaseDetailsEndpoint {
     }
 
 
-    @RequestMapping(value = "/data/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/pagination_metadata", method = RequestMethod.GET)
+    @RequestMapping(value = "/caseworkers/{uid}/jurisdictions/{jid}/case-types/{ctid}/cases/pagination_metadata", method = RequestMethod.GET)
     @ApiOperation(value = "Get the pagination metadata for a case data search")
     @ApiResponses(value = {
             @ApiResponse(code = 200, message = "Pagination metadata for the given search criteria")})
