@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.util.Collections.singletonList;
 import static java.util.stream.Collectors.toList;
@@ -73,7 +74,7 @@ public class CoreCaseService {
         List<CaseViewEvent> collect = events
                 .stream()
                 .map(this::createCaseViewEvent)
-                .collect(Collectors.toList());
+                .collect(toList());
 
         CaseViewEvent[] caseViewEvents = new CaseViewEvent[collect.size()];
         return collect.toArray(caseViewEvents);

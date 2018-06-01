@@ -96,7 +96,7 @@ public class ReflectionUtils {
                             return cvf;
                         })
                         .findFirst()
-                        .orElseThrow(IllegalArgumentException::new);
+                        .orElse(null);
                 } else {
                     return null;
                 }
