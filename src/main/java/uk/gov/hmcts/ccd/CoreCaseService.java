@@ -46,7 +46,7 @@ public class CoreCaseService {
     private final Class caseClass;
 
     @Autowired
-    private ObjectMapper objectMapper = new ObjectMapper();
+    private ObjectMapper objectMapper;
 
     public CoreCaseService(CCDAppConfig config, ICCDApplication application) {
         this.config = config;
