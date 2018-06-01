@@ -11,6 +11,7 @@ import uk.gov.hmcts.ccd.definition.CaseSearchableField;
 import uk.gov.hmcts.ccd.definition.CaseViewField;
 import uk.gov.hmcts.ccd.definition.CaseViewTabs;
 import uk.gov.hmcts.ccd.definition.ComplexType;
+import uk.gov.hmcts.ccd.definition.FieldLabel;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
