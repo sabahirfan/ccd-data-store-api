@@ -12,6 +12,15 @@ public class WizardPageField implements Serializable {
     private Integer order = null;
     private Integer pageColumnNumber;
 
+    public WizardPageField(String caseFieldId, Integer order, Integer pageColumnNumber) {
+        this.caseFieldId = caseFieldId;
+        this.order = order;
+        this.pageColumnNumber = pageColumnNumber;
+    }
+
+    public WizardPageField() {
+    }
+
     @JsonProperty("case_field_id")
     public String getCaseFieldId() {
         return caseFieldId;
