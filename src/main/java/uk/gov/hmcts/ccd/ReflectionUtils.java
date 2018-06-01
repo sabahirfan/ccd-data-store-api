@@ -5,8 +5,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import uk.gov.hmcts.ccd.definition.*;
-import uk.gov.hmcts.ccd.definition.CaseEventFields;
+import uk.gov.hmcts.ccd.definition.CaseEventField;
 import uk.gov.hmcts.ccd.definition.CaseListField;
 import uk.gov.hmcts.ccd.definition.CaseSearchableField;
 import uk.gov.hmcts.ccd.definition.CaseViewField;
@@ -77,28 +76,21 @@ public class ReflectionUtils {
     }
 
     public static List<uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField> getCaseViewFieldForEvent(
-        Class caseClass,
-        String eventId
+        Class eventClass
     ) {
-        return Arrays.stream(caseClass.getDeclaredFields())
+        return Arrays.stream(eventClass.getDeclaredFields())
             .map(f -> {
-                CaseEventFields annotation = f.getAnnotation(CaseEventFields.class);
+                CaseEventField annotation = f.getAnnotation(CaseEventField.class);
                 if (annotation != null) {
-                    return Arrays.stream(annotation.value())
-                        .filter(e -> e.event().equals(eventId))
-                        .map(e -> {
-                            uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField cvf = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
-                            cvf.setId(f.getName());
-                            cvf.setFieldType(getFieldType(f));
-                            cvf.setOrder(e.order());
-                            cvf.setLabel(e.label());
-                            cvf.setDisplayContext("OPTIONAL");
-                            cvf.setSecurityLabel("PUBLIC");
+                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField cvf = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
+                    cvf.setId(f.getName());
+                    cvf.setFieldType(getFieldType(f));
+                    cvf.setOrder(annotation.order());
+                    cvf.setLabel(annotation.label());
+                    cvf.setDisplayContext("OPTIONAL");
+                    cvf.setSecurityLabel("PUBLIC");
 
-                            return cvf;
-                        })
-                        .findFirst()
-                        .orElse(null);
+                    return cvf;
                 } else {
                     return null;
                 }

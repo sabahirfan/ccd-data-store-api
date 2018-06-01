@@ -23,4 +23,6 @@ public interface ICCDApplication<T extends ICase> {
     void handleTrigger(String caseID, CaseDataContent caseDetails);
 
     ProfileCaseState getCaseState(String caseId);
+
+    Map<String, Class> eventsMapping();
 }
