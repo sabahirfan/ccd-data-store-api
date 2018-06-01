@@ -393,11 +393,14 @@ public class CaseDetailsEndpoint {
             @ApiResponse(code = 200, message = "Pagination metadata for the given search criteria")})
     public PaginatedSearchMetadata searchCasesMetadataForCaseworkers(@PathVariable("jid") final String jurisdictionId,
                                                                   @PathVariable("ctid") final String caseTypeId,
-                                                                  @RequestParam Map<String, String> queryParameters) {
+                                                                  @RequestParam Map<String, String> params) {
         PaginatedSearchMetadata metadata = new PaginatedSearchMetadata();
         metadata.setTotalPagesCount(1);
         // todo: pass actual search criteria
-        metadata.setTotalResultsCount(service.search(null).getSearchResultViewItems().length);
+
+        Map<String, String> customSearch = fieldMapSanitizeOperation.execute(params);
+
+        metadata.setTotalResultsCount(service.search(customSearch).getSearchResultViewItems().length);
         return metadata;
     }
 
