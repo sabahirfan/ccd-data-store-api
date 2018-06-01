@@ -293,6 +293,10 @@ public class ReflectionUtils {
                 throw new RuntimeException(e);
             }
             CaseField f = new CaseField();
+            FieldLabel label = field.getAnnotation(FieldLabel.class);
+            if (null != label) {
+                f.setLabel(label.value());
+            }
             f.setFieldType(fieldType);
             f.setId(field.getName());
             f.setValue(new ObjectMapper().valueToTree(value));
