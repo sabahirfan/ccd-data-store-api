@@ -1,14 +1,16 @@
 package uk.gov.hmcts.ccd;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.node.JsonNodeFactory;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
-import uk.gov.hmcts.ccd.definition.*;
+import uk.gov.hmcts.ccd.definition.CaseEventFields;
+import uk.gov.hmcts.ccd.definition.CaseListField;
+import uk.gov.hmcts.ccd.definition.CaseSearchableField;
+import uk.gov.hmcts.ccd.definition.CaseViewField;
+import uk.gov.hmcts.ccd.definition.CaseViewTabs;
+import uk.gov.hmcts.ccd.definition.ComplexType;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
@@ -18,9 +20,12 @@ import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 public class ReflectionUtils {
     private static ImmutableMap<String, String> typeMap = ImmutableMap.of(
@@ -67,6 +72,37 @@ public class ReflectionUtils {
             throw new RuntimeException(e);
         }
         return result;
+    }
+
+    public static List<uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField> getCaseViewFieldForEvent(
+        Class caseClass,
+        String eventId
+    ) {
+        return Arrays.stream(caseClass.getDeclaredFields())
+            .map(f -> {
+                CaseEventFields annotation = f.getAnnotation(CaseEventFields.class);
+                if (annotation != null) {
+                    return Arrays.stream(annotation.value())
+                        .filter(e -> e.event().equals(eventId))
+                        .map(e -> {
+                            uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField cvf = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
+                            cvf.setId(e.label());
+                            cvf.setFieldType(getFieldType(f));
+                            cvf.setOrder(e.order());
+                            cvf.setLabel(e.label());
+                            cvf.setDisplayContext("OPTIONAL");
+                            cvf.setSecurityLabel("PUBLIC");
+
+                            return cvf;
+                        })
+                        .findFirst()
+                        .orElseThrow(IllegalArgumentException::new);
+                } else {
+                    return null;
+                }
+            })
+            .filter(Objects::nonNull)
+            .collect(Collectors.toList());
     }
 
     public static List<WorkbasketInput> generateWorkbasketInputs(Class c) {

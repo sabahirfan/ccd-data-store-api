@@ -36,6 +36,7 @@ import uk.gov.hmcts.ccd.domain.service.aggregated.GetEventTriggerOperation;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -203,7 +204,6 @@ public class QueryEndpoint {
                                                    @PathVariable("etid") String eventTriggerId,
                                                    @RequestParam(value = "ignore-warning", required = false) Boolean ignoreWarning) {
 
-
-        throw new RuntimeException("not implemented");
+        return application.getCaseEventTrigger(caseId, eventTriggerId);
     }
 }
