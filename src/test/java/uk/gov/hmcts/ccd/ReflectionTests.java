@@ -2,16 +2,12 @@ package uk.gov.hmcts.ccd;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Maps;
-import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
-import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
-import uk.gov.hmcts.ccd.domain.model.search.SearchResultViewItem;
 import uk.gov.hmcts.ccd.types.*;
 
 import java.util.List;
@@ -20,15 +16,8 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
-public class CCDTests {
+public class ReflectionTests {
 
-    CoreCaseService service;
-
-    @Before
-    public void setup() {
-        FakeCCDImplementation impl = new FakeCCDImplementation();
-        service = new CoreCaseService(new CCDAppConfig(), impl);
-    }
 
     @Test
     public void generatesCaseField() {
@@ -105,13 +94,4 @@ public class CCDTests {
         assertThat(vf.getFieldType().getComplexFields().size()).isEqualTo(2);
     }
 
-    @Test
-    public void searchesCases() {
-        SearchResultView view = service.search(Maps.newHashMap());
-
-        assertThat(view.getSearchResultViewColumns().length).isEqualTo(3);
-        SearchResultViewItem[] items = view.getSearchResultViewItems();
-        assertThat(items.length).isEqualTo(2);
-        assertThat(items[0].getCaseFields().get("defendantName").asText()).isEqualTo("Defendant");
-    }
 }
