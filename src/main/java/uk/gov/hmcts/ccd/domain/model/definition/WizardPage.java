@@ -17,6 +17,17 @@ public class WizardPage implements Serializable {
     private List<WizardPageField> wizardPageFields = new ArrayList<>();
     private String showCondition;
 
+    public WizardPage(String id, String label, Integer order, List<WizardPageField> wizardPageFields, String showCondition) {
+        this.id = id;
+        this.label = label;
+        this.order = order;
+        this.wizardPageFields = wizardPageFields;
+        this.showCondition = showCondition;
+    }
+
+    public WizardPage() {
+    }
+
     @ApiModelProperty(value = "")
     @JsonProperty("id")
     public String getId() {

@@ -36,6 +36,7 @@ import uk.gov.hmcts.ccd.domain.service.aggregated.GetEventTriggerOperation;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -50,7 +51,7 @@ import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_RE
 import static uk.gov.hmcts.ccd.domain.service.common.AccessControlService.CAN_UPDATE;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3451", allowCredentials = "true")
 @RequestMapping(path = "/aggregated",
     consumes = MediaType.APPLICATION_JSON_VALUE,
     produces = MediaType.APPLICATION_JSON_VALUE)
@@ -84,7 +85,8 @@ public class QueryEndpoint {
         @ApiResponse(code = 404, message = "No case types found for given access criteria")})
     public List<CaseType> getCaseTypes(@PathVariable("jid") final String jurisdictionId,
                                        @RequestParam(value = "access", required = true) String access) {
-        return Lists.newArrayList(application.getCaseType());
+        CaseType caseType = application.getCaseType();
+        return Lists.newArrayList(caseType);
     }
 
 
@@ -121,10 +123,9 @@ public class QueryEndpoint {
         @ApiResponse(code = 200, message = "Search Input data found for the given case type and jurisdiction"),
         @ApiResponse(code = 404, message = "No SearchInput found for the given case type and jurisdiction")
     })
-    public SearchInput[] findSearchInputDetails(@PathVariable("uid") final Integer uid,
-                                                @PathVariable("jid") final String jurisdictionId,
+    public SearchInput[] findSearchInputDetails(@PathVariable("jid") final String jurisdictionId,
                                                 @PathVariable("ctid") final String caseTypeId) {
-        throw new RuntimeException("not implemented");
+        return application.searchInputs();
     }
 
 
@@ -203,7 +204,6 @@ public class QueryEndpoint {
                                                    @PathVariable("etid") String eventTriggerId,
                                                    @RequestParam(value = "ignore-warning", required = false) Boolean ignoreWarning) {
 
-
-        throw new RuntimeException("not implemented");
+        return application.getCaseEventTrigger(caseId, eventTriggerId);
     }
 }

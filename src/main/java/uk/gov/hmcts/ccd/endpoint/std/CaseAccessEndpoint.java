@@ -11,7 +11,7 @@ import uk.gov.hmcts.ccd.domain.model.std.UserId;
 import java.util.List;
 
 @RestController
-@CrossOrigin
+@CrossOrigin(origins = "http://localhost:3451", allowCredentials = "true")
 @RequestMapping(path = "/", produces = MediaType.APPLICATION_JSON_VALUE)
 @Api(value = "/", description = "Case access API")
 public class CaseAccessEndpoint {
