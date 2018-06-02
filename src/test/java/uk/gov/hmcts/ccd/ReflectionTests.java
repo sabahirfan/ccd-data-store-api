@@ -8,6 +8,10 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.*;
+import uk.gov.hmcts.ccd.types.model.FakeCCDImplementation;
+import uk.gov.hmcts.ccd.types.model.FakeCase;
+import uk.gov.hmcts.ccd.types.model.FakeState;
+import uk.gov.hmcts.ccd.types.model.Party;
 import uk.gov.hmcts.ccd.types.nested.WithSubClass;
 
 import java.util.List;

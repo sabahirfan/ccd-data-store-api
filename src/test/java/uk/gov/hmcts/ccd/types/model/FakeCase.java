@@ -1,4 +1,4 @@
-package uk.gov.hmcts.ccd.types;
+package uk.gov.hmcts.ccd.types.model;
 
 import lombok.NoArgsConstructor;
 import uk.gov.hmcts.ccd.ICase;

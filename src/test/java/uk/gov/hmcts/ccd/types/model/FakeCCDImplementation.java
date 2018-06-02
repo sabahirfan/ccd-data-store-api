@@ -1,4 +1,4 @@
-package uk.gov.hmcts.ccd.types;
+package uk.gov.hmcts.ccd.types.model;
 
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -7,6 +7,7 @@ import uk.gov.hmcts.ccd.ICCDApplication;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.ProfileCaseState;
 import uk.gov.hmcts.ccd.domain.model.std.CaseDataContent;
+import uk.gov.hmcts.ccd.types.model.FakeCase;
 
 import java.util.List;
 import java.util.Map;

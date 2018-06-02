@@ -5,7 +5,7 @@ import org.junit.Before;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultViewItem;
-import uk.gov.hmcts.ccd.types.FakeCCDImplementation;
+import uk.gov.hmcts.ccd.types.model.FakeCCDImplementation;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
