@@ -217,7 +217,7 @@ public class ReflectionUtils {
             ICase c,
             java.lang.reflect.Field declaredField
     ) {
-        String t = determineFieldType(declaredField);
+        String t = getFieldType(declaredField).getType();
         if (t.equals("Complex")) {
             try {
                 declaredField.setAccessible(true);
@@ -230,9 +230,7 @@ public class ReflectionUtils {
             return null;
         }
         CaseField caseViewField = new CaseField();
-        FieldType fieldType = new FieldType();
-        fieldType.setType(determineFieldType(declaredField));
-        caseViewField.setFieldType(fieldType);
+        caseViewField.setFieldType(getFieldType(declaredField));
         ObjectMapper m = new ObjectMapper();
         try {
             declaredField.setAccessible(true);
@@ -255,15 +253,15 @@ public class ReflectionUtils {
             case "Date":
                 return "Date";
         }
-        if (declaredField.getAnnotation(ComplexType.class) != null) {
-            return "Complex";
-        }
         return "Unknown";
     }
 
     private static FieldType getFieldType(java.lang.reflect.Field field) {
         FieldType type = new FieldType();
         String typeId = determineFieldType(field);
+        if (field.getAnnotation(ComplexType.class) != null) {
+            typeId = "Complex";
+        }
         type.setId(typeId);
         type.setType(typeId);
         return type;

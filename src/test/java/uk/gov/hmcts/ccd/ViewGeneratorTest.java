@@ -18,4 +18,6 @@ public class ViewGeneratorTest {
         view.render(fakeCase, fields);
         assertThat(fields.size()).isEqualTo(2);
     }
+
+
 }
