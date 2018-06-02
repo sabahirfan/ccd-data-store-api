@@ -5,7 +5,6 @@ import com.google.common.collect.ImmutableSet;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
-import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.*;
@@ -66,14 +65,14 @@ public class ReflectionTests {
 
     @Test
     public void mapsComplextype() {
-        CaseViewField field = ReflectionUtils.mapComplexType(new TestAddress());
+        CaseField field = ReflectionUtils.mapComplexType(new TestAddress());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         assertThat(field.getFieldType().getComplexFields().size()).isGreaterThanOrEqualTo(3);
         assertThat(field.getFieldType().getComplexFields().get(0).getLabel()).isEqualTo("test");
     }
     @Test
     public void mapsNestedComplexType() {
-        CaseViewField field = ReflectionUtils.mapComplexType(new Party());
+        CaseField field = ReflectionUtils.mapComplexType(new Party());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         assertThat(field.getFieldType().getComplexFields().size()).isGreaterThanOrEqualTo(2);
         assertThat(field.getFieldType().getComplexFields().get(1).getFieldType().getType()).isEqualTo("Complex");
@@ -99,7 +98,7 @@ public class ReflectionTests {
         assertThat(result.length).isEqualTo(3);
         CaseViewTab addressTab = result[0];
         assertThat(addressTab.getFields().length).isEqualTo(1);
-        CaseViewField vf = addressTab.getFields()[0];
+        CaseField vf = addressTab.getFields()[0];
         assertThat(vf.getFieldType().getComplexFields().size()).isEqualTo(2);
     }
 

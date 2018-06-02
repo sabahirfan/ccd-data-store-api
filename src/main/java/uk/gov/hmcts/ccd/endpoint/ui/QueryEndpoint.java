@@ -19,11 +19,7 @@ import uk.gov.hmcts.ccd.data.casedetails.search.FieldMapSanitizeOperation;
 import uk.gov.hmcts.ccd.data.casedetails.search.MetaData;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
-import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
-import uk.gov.hmcts.ccd.domain.model.definition.AccessControlList;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
-import uk.gov.hmcts.ccd.domain.model.definition.WizardPage;
-import uk.gov.hmcts.ccd.domain.model.definition.WizardPageField;
+import uk.gov.hmcts.ccd.domain.model.definition.*;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
@@ -165,8 +161,8 @@ public class QueryEndpoint {
                                                        @PathVariable("etid") String eventTriggerId,
                                                        @RequestParam(value = "ignore-warning", required = false) Boolean ignoreWarning) {
         CaseEventTrigger trigger = new CaseEventTrigger();
-        List<CaseViewField> fields = application.getCaseType().getCaseFields().stream().map(x -> {
-            CaseViewField vf = new CaseViewField();
+        List<CaseField> fields = application.getCaseType().getCaseFields().stream().map(x -> {
+            CaseField vf = new CaseField();
             vf.setFieldType(x.getFieldType());
             vf.setId(x.getId());
             vf.setLabel(x.getLabel());

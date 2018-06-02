@@ -26,11 +26,21 @@ public class CaseField implements Serializable {
     private String liveFrom = null;
     @JsonProperty("live_until")
     private String liveUntil = null;
-    @JsonProperty("show_condition")
-    private String showConditon = null;
     @JsonProperty("acls")
     private List<AccessControlList> accessControlLists;
+    @JsonProperty("show_summary_change_option")
+    private Boolean showSummaryChangeOption;
     private JsonNode value;
+
+    @JsonProperty("validation_expr")
+    private String validationExpression;
+    @JsonProperty("order")
+    private Integer order;
+    @JsonProperty("display_context")
+    private String displayContext;
+    @JsonProperty("show_condition")
+    private String showCondition;
+
 
     public String getId() {
         return id;
@@ -104,10 +114,6 @@ public class CaseField implements Serializable {
         this.liveUntil = liveUntil;
     }
 
-    public String getShowConditon() { return showConditon; }
-
-    public void setShowConditon(String showConditon) { this.showConditon = showConditon; }
-
     public List<AccessControlList> getAccessControlLists() {
         return accessControlLists;
     }
@@ -126,5 +132,37 @@ public class CaseField implements Serializable {
     @Override
     public String toString() {
         return ReflectionToStringBuilder.toString(this);
+    }
+
+    public Integer getOrder() {
+        return order;
+    }
+
+    public void setOrder(Integer order) {
+        this.order = order;
+    }
+
+    public String getValidationExpression() {
+        return validationExpression;
+    }
+
+    public void setValidationExpression(String validationExpression) {
+        this.validationExpression = validationExpression;
+    }
+
+    public String getDisplayContext() {
+        return displayContext;
+    }
+
+    public void setDisplayContext(String displayContext) {
+        this.displayContext = displayContext;
+    }
+
+    public String getShowCondition() {
+        return showCondition;
+    }
+
+    public void setShowCondition(String showCondition) {
+        this.showCondition = showCondition;
     }
 }

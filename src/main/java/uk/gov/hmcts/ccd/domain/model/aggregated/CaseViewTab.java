@@ -1,16 +1,18 @@
 package uk.gov.hmcts.ccd.domain.model.aggregated;
 
+import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
+
 public class CaseViewTab {
     private String id;
     private String label;
     private Integer order;
-    private CaseViewField[] fields;
+    private CaseField[] fields;
 
     public CaseViewTab() {
         // default constructor
     }
 
-    public CaseViewTab(String id, String label, Integer order, CaseViewField[] fields) {
+    public CaseViewTab(String id, String label, Integer order, CaseField[] fields) {
         this.id = id;
         this.label = label;
         this.order = order;
@@ -41,11 +43,11 @@ public class CaseViewTab {
         this.order = order;
     }
 
-    public CaseViewField[] getFields() {
+    public CaseField[] getFields() {
         return fields;
     }
 
-    public void setFields(CaseViewField[] fields) {
+    public void setFields(CaseField[] fields) {
         this.fields = fields;
     }
 }

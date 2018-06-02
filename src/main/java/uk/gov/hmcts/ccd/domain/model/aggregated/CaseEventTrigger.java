@@ -1,6 +1,7 @@
 package uk.gov.hmcts.ccd.domain.model.aggregated;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.WizardPage;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public class CaseEventTrigger {
     @JsonProperty("case_id")
     private String caseId;
     @JsonProperty("case_fields")
-    private List<CaseViewField> caseFields;
+    private List<CaseField> caseFields;
     @JsonProperty("event_token")
     private String eventToken;
     @JsonProperty("wizard_pages")
@@ -52,11 +53,11 @@ public class CaseEventTrigger {
         this.caseId = caseId;
     }
 
-    public List<CaseViewField> getCaseFields() {
+    public List<CaseField> getCaseFields() {
         return caseFields;
     }
 
-    public void setCaseFields(List<CaseViewField> caseFields) {
+    public void setCaseFields(List<CaseField> caseFields) {
         this.caseFields = caseFields;
     }
 
