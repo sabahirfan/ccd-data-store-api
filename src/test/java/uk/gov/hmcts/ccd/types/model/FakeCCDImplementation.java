@@ -9,11 +9,12 @@ import uk.gov.hmcts.ccd.domain.model.aggregated.ProfileCaseState;
 import uk.gov.hmcts.ccd.domain.model.std.CaseDataContent;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 public class FakeCCDImplementation implements ICCDApplication<FakeCase> {
-    private FakeCase fakeCase = new FakeCase("Defendant", "foo");
+    public static FakeCase fakeCase = new FakeCase("Defendant", "foo");
 
     @Override
     public List<FakeCase> getCases(Map<String, String> searchCriteria) {
@@ -40,7 +41,10 @@ public class FakeCCDImplementation implements ICCDApplication<FakeCase> {
 
     @Override
     public List<CaseViewTrigger> getTriggers(String caseId) {
-        return Lists.newArrayList();
+        return Arrays.asList(
+            new CaseViewTrigger("hello1", "Hello 1", "Hello 1 desc", 0),
+            new CaseViewTrigger("more-time-request-paper", "More time request paper", "desc", 1)
+        );
     }
 
     @Override
