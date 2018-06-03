@@ -30,4 +30,9 @@ public class FixedListItem implements Serializable {
     public void setLabel(String label) {
         this.label = label;
     }
+    public FixedListItem() { }
+    public FixedListItem(String code, String label) {
+        this.code = code;
+        this.label = label;
+    }
 }

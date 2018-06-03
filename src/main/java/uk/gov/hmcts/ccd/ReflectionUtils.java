@@ -8,6 +8,7 @@ import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
+import uk.gov.hmcts.ccd.domain.model.definition.FixedListItem;
 import uk.gov.hmcts.ccd.domain.model.search.Field;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
@@ -215,11 +216,15 @@ public class ReflectionUtils {
                 return "Text";
             case "Integer":
             case "Long":
+            case "int":
                 return "Number";
             case "LocalDate":
             case "LocalDateTime":
             case "Date":
                 return "Date";
+        }
+        if (c.isEnum()) {
+            return "Text";
         }
         if (Collection.class.isAssignableFrom(c)) {
             return "Collection";

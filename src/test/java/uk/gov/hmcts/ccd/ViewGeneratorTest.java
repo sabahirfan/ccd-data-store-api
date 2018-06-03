@@ -6,11 +6,17 @@ import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
+import uk.gov.hmcts.ccd.types.cmc.MadeBy;
+import uk.gov.hmcts.ccd.types.cmc.Offer;
+import uk.gov.hmcts.ccd.types.cmc.Settlement;
 import uk.gov.hmcts.ccd.types.fields.Address;
+import uk.gov.hmcts.ccd.types.fields.HasEnum;
 import uk.gov.hmcts.ccd.types.fields.HasStringList;
+import uk.gov.hmcts.ccd.types.fields.WithInt;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
+import java.time.LocalDate;
 import java.util.Collection;
 import java.util.List;
 
@@ -68,5 +74,29 @@ public class ViewGeneratorTest {
         assertThat(leaf.getFieldType().getType()).isEqualTo("Text");
         CCDCollectionEntry[] values = new ObjectMapper().treeToValue(field.getValue(), CCDCollectionEntry[].class);
         assertThat(values.length).isEqualTo(2);
+    }
+
+    @Test
+    public void handlesEnum() {
+        HasEnum h = new HasEnum();
+        CaseField s = ViewGenerator.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Text");
+    }
+
+    @Test
+    public void handlesInt() {
+        WithInt h = new WithInt();
+        CaseField s = ViewGenerator.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Number");
+    }
+
+    @Test
+    public void handlesCMCType() {
+        Settlement s = new Settlement();
+        Offer offer = new Offer("Some offer details", LocalDate.now());
+        s.makeOffer(offer, MadeBy.CLAIMANT);
+        CaseField field = ViewGenerator.convert(s);
     }
 }
