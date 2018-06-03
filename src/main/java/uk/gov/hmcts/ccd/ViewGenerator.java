@@ -29,7 +29,7 @@ public class ViewGenerator {
         "Number"
     );
 
-    public static <T extends ICase> List<CaseField> generate(ICaseView<T> view, T model) {
+    public static List<CaseField> generate(List<Object> fields) {
         throw new RuntimeException();
     }
 

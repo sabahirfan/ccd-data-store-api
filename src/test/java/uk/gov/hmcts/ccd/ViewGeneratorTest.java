@@ -1,22 +1,13 @@
 package uk.gov.hmcts.ccd;
 
-import org.assertj.core.util.Lists;
-import org.assertj.core.util.Sets;
 import org.junit.Test;
-import org.springframework.beans.factory.support.BeanDefinitionRegistry;
-import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
-import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
-import org.springframework.core.type.filter.AssignableTypeFilter;
-import org.springframework.core.type.filter.TypeFilter;
 import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.Address;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
-import javax.swing.text.View;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -28,7 +19,6 @@ public class ViewGeneratorTest {
         List<Object> fields = view.render(fakeCase);
         assertThat(fields.size()).isEqualTo(2);
     }
-
 
     @Test
     public void convertsString() {
