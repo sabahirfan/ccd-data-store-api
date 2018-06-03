@@ -2,6 +2,7 @@ package uk.gov.hmcts.ccd;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.fields.Address;
@@ -9,6 +10,7 @@ import uk.gov.hmcts.ccd.types.fields.HasStringList;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
+import java.util.Collection;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -38,6 +40,14 @@ public class ViewGeneratorTest {
 
     @Test
     public void convertsStringList() throws JsonProcessingException {
+        CaseField field = ViewGenerator.convert((Object) Lists.newArrayList("Hello", "World"));
+        assertThat(field.getFieldType().getType()).isEqualTo("Collection");
+        CCDCollectionEntry[] values = new ObjectMapper().treeToValue(field.getValue(), CCDCollectionEntry[].class);
+        assertThat(values.length).isEqualTo(2);
+    }
+
+    @Test
+    public void convertsHasStringList() throws JsonProcessingException {
         CaseField field = ViewGenerator.convert(new HasStringList());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         CaseField collection = field.getFieldType().getComplexFields().get(0);
