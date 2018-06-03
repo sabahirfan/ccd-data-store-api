@@ -186,34 +186,6 @@ public class ReflectionUtils {
         return tabs.toArray(new CaseViewTab[0]);
     }
 
-    private static CaseField
-    getCaseViewField(
-            ICase c,
-            java.lang.reflect.Field declaredField
-    ) {
-        String t = getFieldType(declaredField).getType();
-        if (t.equals("Complex")) {
-            try {
-                declaredField.setAccessible(true);
-                return mapComplexType(declaredField.get(c));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (t.equals("Unknown")) {
-            return null;
-        }
-        CaseField caseViewField = new CaseField();
-        caseViewField.setFieldType(getFieldType(declaredField));
-        try {
-            declaredField.setAccessible(true);
-            caseViewField.setValue(mapper.valueToTree(declaredField.get(c)));
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        return caseViewField;
-    }
-
     public static String determineFieldType(Class c) {
         switch (c.getSimpleName()) {
             case "String":
