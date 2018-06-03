@@ -39,11 +39,15 @@ public class ViewGenerator {
     }
 
     public static CaseField convert(Object value) {
-        if (PRIMITIVES.contains(ReflectionUtils.determineFieldType(value.getClass()))) {
+        String type = ReflectionUtils.determineFieldType(value.getClass());
+        if (PRIMITIVES.contains(type)) {
             CaseField result = new CaseField();
             result.setFieldType(ReflectionUtils.getFieldType(value.getClass()));
             result.setValue(mapper.valueToTree(value));
             return result;
+        }
+        if (type.equals("Collection")) {
+            return ReflectionUtils.mapCollection((Collection) value);
         }
         return ReflectionUtils.mapComplexType(value);
     }

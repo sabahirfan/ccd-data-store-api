@@ -16,11 +16,7 @@ import javax.swing.text.View;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
@@ -225,6 +221,9 @@ public class ReflectionUtils {
             case "Date":
                 return "Date";
         }
+        if (Collection.class.isAssignableFrom(c)) {
+            return "Collection";
+        }
         return "Unknown";
     }
 
@@ -271,19 +270,51 @@ public class ReflectionUtils {
             }
             f.setFieldType(fieldType);
             f.setId(field.getName());
-            if (fieldType.getType().equals("Complex")) {
-                CaseField complex = mapComplexType(value);
+            switch (fieldType.getType()) {
+                case "Complex":
+                    CaseField complex = mapComplexType(value);
 
-                FieldType cType = new FieldType();
-                cType.setId(field.getName());
-                cType.setType("Complex");
-                cType.setComplexFields(complex.getFieldType().getComplexFields());
-                f.setFieldType(cType);
-            } else {
-                f.setValue(new ObjectMapper().valueToTree(value));
+                    FieldType cType = new FieldType();
+                    cType.setId(field.getName());
+                    cType.setType("Complex");
+                    cType.setComplexFields(complex.getFieldType().getComplexFields());
+                    f.setFieldType(cType);
+                    break;
+                case "Collection":
+                    Collection c = (Collection) value;
+                    CaseField collection = mapCollection(c);
+
+                    cType = new FieldType();
+                    cType.setId(field.getName());
+                    cType.setType("Collection");
+                    cType.setComplexFields(collection.getFieldType().getComplexFields());
+                    f.setFieldType(cType);
+                    f.setValue(collection.getValue());
+                    break;
+                    default:
+                    f.setValue(new ObjectMapper().valueToTree(value));
+                    break;
             }
             complexFields.add(f);
         }
+
+        return result;
+    }
+
+    public static CaseField mapCollection(Collection c) {
+        CaseField result = new CaseField();
+        FieldType type = new FieldType();
+        type.setType("Collection");
+        result.setFieldType(type);
+        FieldType collectionType = new FieldType();
+        collectionType.setType("Text");
+        List<CCDCollectionEntry> entries = Lists.newArrayList();
+
+        int t = 1;
+        for (Object o : c) {
+            entries.add(new CCDCollectionEntry(String.valueOf(t++), o.toString()));
+        }
+        result.setValue(new ObjectMapper().valueToTree(entries));
 
         return result;
     }
