@@ -21,7 +21,7 @@ public class FakeCase implements ICase {
 
     @CaseViewField(label = "Party", tab = "Party")
     @ComplexType
-    private Party sub = new Party();
+    private Party party = new Party();
 
     public static final FakeCase C = new FakeCase("D", "P");
 
@@ -38,5 +38,9 @@ public class FakeCase implements ICase {
     @Override
     public FakeState getState() {
         return FakeState.Closed;
+    }
+
+    public Party getParty() {
+        return party;
     }
 }

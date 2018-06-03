@@ -4,13 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import uk.gov.hmcts.ccd.definition.CaseEventField;
-import uk.gov.hmcts.ccd.definition.CaseListField;
-import uk.gov.hmcts.ccd.definition.CaseSearchableField;
-import uk.gov.hmcts.ccd.definition.CaseViewField;
-import uk.gov.hmcts.ccd.definition.CaseViewTabs;
-import uk.gov.hmcts.ccd.definition.ComplexType;
-import uk.gov.hmcts.ccd.definition.FieldLabel;
+import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
@@ -18,6 +12,7 @@ import uk.gov.hmcts.ccd.domain.model.search.Field;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 
+import javax.swing.text.View;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -167,49 +162,26 @@ public class ReflectionUtils {
         }
     }
 
-    public static CaseViewTab[] generateCaseViewTabs(ICase c) {
-        Class caseClass = c.getClass();
-        Map<String, CaseViewTab> caseViewTabs = new HashMap<>();
-        CaseViewTabs annotation = (CaseViewTabs) caseClass.getAnnotation(CaseViewTabs.class);
-        String[] caseTabs = annotation.value();
-        for (int i = 0; i < caseTabs.length; i++) {
-            String tab = caseTabs[i];
+    public static CaseViewTab[] generateCaseViewTabs(ICase c, List<ICaseView> views) {
+        List<CaseViewTab> tabs = Lists.newArrayList();
+        int i = 0;
+        for (ICaseView view : views) {
             CaseViewTab caseViewTab = new CaseViewTab();
-            caseViewTab.setOrder(i + 1);
-            caseViewTab.setId(tab);
-            caseViewTab.setLabel(tab);
-            caseViewTabs.put(tab, caseViewTab);
-        }
+            caseViewTab.setOrder(i++);
+            caseViewTab.setId(view.getTab());
+            caseViewTab.setLabel(view.getTab());
 
-        java.lang.reflect.Field[] declaredFields = caseClass.getDeclaredFields();
-        for (int i = 0; i < declaredFields.length; i++) {
-            java.lang.reflect.Field declaredField = declaredFields[i];
-            CaseViewField cf = declaredField.getAnnotation(CaseViewField.class);
-            if (cf != null) {
-                for (String tab : cf.tab()) {
-                    CaseViewTab caseViewTab = caseViewTabs.get(tab);
-                    CaseField[] fields = caseViewTab.getFields();
-                    if (fields == null) {
-                        fields = new CaseField[1];
-                    }
-                    CaseField caseViewField = getCaseViewField(c,declaredField);
-                    if (null == caseViewField) {
-                        continue;
-                    }
-
-                    caseViewField.setOrder(i + 1);
-                    caseViewField.setLabel(cf.label());
-                    caseViewField.setId(cf.label());
-
-                    fields[fields.length - 1] = caseViewField;
-                    caseViewTab.setFields(fields);
-                    caseViewTabs.put(tab, caseViewTab);
-                }
+            CaseField[] fields = ViewGenerator.convert(view.render(c));
+            for (CaseField caseViewField : fields) {
+                caseViewField.setOrder(i);
+                caseViewField.setLabel("placeholder");
+                caseViewField.setId("placeholder");
             }
-        }
 
-        CaseViewTab[] caseViewTabsArr = new CaseViewTab[1];
-        return caseViewTabs.values().toArray(caseViewTabsArr);
+            caseViewTab.setFields(fields);
+            tabs.add(caseViewTab);
+        }
+        return tabs.toArray(new CaseViewTab[0]);
     }
 
     private static CaseField

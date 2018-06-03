@@ -40,6 +40,6 @@ public class PluginTests {
     @Test
     public void rendersTabs() {
         CaseView view = service.getCaseView("CMC", "foo", FakeCCDImplementation.fakeCase.getCaseId());
-        assertThat(view.getTabs().length).isEqualTo(3);
+        assertThat(view.getTabs().length).isEqualTo(1);
     }
 }

@@ -87,7 +87,7 @@ public class CoreCaseService {
     public CaseView getCaseView(String jurisdictionId, String caseTypeId, String caseId) {
         CaseView caseView = new CaseView();
         caseView.setCaseId(caseId);
-        caseView.setTabs(ReflectionUtils.generateCaseViewTabs(application.getCase(caseId)));
+        caseView.setTabs(ReflectionUtils.generateCaseViewTabs(application.getCase(caseId), views));
         caseView.setChannels(getChannels());
         caseView.setTriggers(getTriggers(caseId));
 

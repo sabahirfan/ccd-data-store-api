@@ -2,16 +2,15 @@ package uk.gov.hmcts.ccd;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import org.assertj.core.util.Lists;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.test.context.junit4.SpringRunner;
+import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.*;
-import uk.gov.hmcts.ccd.types.model.FakeCCDImplementation;
-import uk.gov.hmcts.ccd.types.model.FakeCase;
-import uk.gov.hmcts.ccd.types.model.FakeState;
-import uk.gov.hmcts.ccd.types.model.Party;
+import uk.gov.hmcts.ccd.types.model.*;
 import uk.gov.hmcts.ccd.types.nested.WithSubClass;
 
 import java.util.List;
@@ -98,11 +97,13 @@ public class ReflectionTests {
 
     @Test
     public void testRhubarbTabView() {
-        CaseViewTab[] result = ReflectionUtils.generateCaseViewTabs(new FakeCase("defendantName", "prosecutorName"));
-        assertThat(result.length).isEqualTo(3);
+        List<ICaseView> views = Lists.newArrayList(new FakeView());
+        CaseViewTab[] result = ReflectionUtils.generateCaseViewTabs(FakeCase.C, views);
+        assertThat(result.length).isEqualTo(1);
         CaseViewTab addressTab = result[0];
-        assertThat(addressTab.getFields().length).isEqualTo(1);
-        CaseField vf = addressTab.getFields()[0];
+        assertThat(addressTab.getFields().length).isEqualTo(2);
+        CaseField vf = addressTab.getFields()[1];
+
         assertThat(vf.getFieldType().getComplexFields().size()).isEqualTo(2);
     }
 

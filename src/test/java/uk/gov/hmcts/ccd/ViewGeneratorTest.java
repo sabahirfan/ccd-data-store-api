@@ -33,14 +33,4 @@ public class ViewGeneratorTest {
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         assertThat(field.getFieldType().getComplexFields().get(0).getValue().toString()).contains("test line 1");
     }
-
-    @Test
-    public void findsView() {
-        List<ICaseView<FakeCase>> views = ViewGenerator.getViews("uk.gov.hmcts");
-        assertThat(views.size()).isEqualTo(1);
-        ICaseView<FakeCase> view = views.get(0);
-        List<Object> fields = view.render(FakeCase.C);
-
-        assertThat(fields.get(0)).isEqualTo(FakeCase.C.getCaseId());
-    }
 }

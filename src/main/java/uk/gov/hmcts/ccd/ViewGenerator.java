@@ -16,6 +16,7 @@ import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -33,6 +34,10 @@ public class ViewGenerator {
         throw new RuntimeException();
     }
 
+    public static CaseField[] convert(Collection<Object> values) {
+        return values.stream().map(ViewGenerator::convert).toArray(CaseField[]::new);
+    }
+
     public static CaseField convert(Object value) {
         if (PRIMITIVES.contains(ReflectionUtils.determineFieldType(value.getClass()))) {
             CaseField result = new CaseField();
@@ -41,27 +46,5 @@ public class ViewGenerator {
             return result;
         }
         return ReflectionUtils.mapComplexType(value);
-    }
-
-    @SneakyThrows
-    public static <T extends ICase> List<ICaseView<T>> getViews(String packageName) {
-        BeanDefinitionRegistry bdr = new SimpleBeanDefinitionRegistry();
-        ClassPathBeanDefinitionScanner s = new ClassPathBeanDefinitionScanner(bdr);
-
-        TypeFilter tf = new AssignableTypeFilter(ICaseView.class);
-        s.setIncludeAnnotationConfig(false);
-        s.resetFilters(false);
-        s.addIncludeFilter(tf);
-        s.scan("uk.gov.hmcts.ccd");
-        String[] beans = bdr.getBeanDefinitionNames();
-        List<ICaseView<T>> result = Lists.newArrayList();
-        for (String bean : beans) {
-            Class<T> c = (Class<T>) Class.forName(bdr.getBeanDefinition(bean).getBeanClassName());
-            Constructor<?> ctor = c.getConstructor();
-            ICaseView<T> view = (ICaseView<T>) ctor.newInstance();
-            result.add(view);
-        }
-
-        return result;
     }
 }
