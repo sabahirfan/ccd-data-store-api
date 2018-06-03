@@ -3,6 +3,7 @@ package uk.gov.hmcts.ccd;
 import org.assertj.core.util.Lists;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
+import uk.gov.hmcts.ccd.types.Address;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
@@ -25,6 +26,13 @@ public class ViewGeneratorTest {
     public void convertsString() {
         CaseField field = ViewGenerator.convert("hello");
         assertThat(field.getFieldType().getType()).isEqualTo("Text");
-        assertThat(field.getValue().isTextual());
+        assertThat(field.getValue().isTextual()).isTrue();
+    }
+
+    @Test
+    public void convertsComplex() {
+        CaseField field = ViewGenerator.convert(new Address());
+        assertThat(field.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(field.getFieldType().getComplexFields().get(0).getValue().toString()).contains("test line 1");
     }
 }
