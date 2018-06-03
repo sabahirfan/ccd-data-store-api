@@ -224,7 +224,7 @@ public class ReflectionUtils {
         if (Collection.class.isAssignableFrom(c)) {
             return "Collection";
         }
-        return "Unknown";
+        return "Complex";
     }
 
 
@@ -293,8 +293,18 @@ public class ReflectionUtils {
         FieldType type = new FieldType();
         type.setType("Collection");
         result.setFieldType(type);
-        FieldType collectionType = new FieldType();
-        collectionType.setType("Text");
+
+        if (c.isEmpty()) {
+            return result;
+        }
+
+        Object instance = c.iterator().next();
+        FieldType listType = getFieldType(instance.getClass());
+        type.setCollectionFieldType(listType);
+        if (listType.getType().equals("Complex")) {
+            CaseField cf = mapComplexType(instance);
+            type.getCollectionFieldType().setComplexFields(cf.getFieldType().getComplexFields());
+        }
         List<CCDCollectionEntry> entries = Lists.newArrayList();
 
         int t = 1;

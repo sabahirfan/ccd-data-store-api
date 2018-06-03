@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
+import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 import uk.gov.hmcts.ccd.types.fields.Address;
 import uk.gov.hmcts.ccd.types.fields.HasStringList;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
@@ -53,6 +54,19 @@ public class ViewGeneratorTest {
         CaseField collection = field.getFieldType().getComplexFields().get(0);
         assertThat(collection.getFieldType().getType()).isEqualTo("Collection");
         CCDCollectionEntry[] values = new ObjectMapper().treeToValue(collection.getValue(), CCDCollectionEntry[].class);
+        assertThat(values.length).isEqualTo(2);
+    }
+
+    @Test
+    public void convertsComplexList() throws JsonProcessingException {
+        CaseField field = ViewGenerator.convert((Object)Lists.newArrayList(new Address(), new Address()));
+        FieldType type = field.getFieldType();
+        assertThat(type.getType()).isEqualTo("Collection");
+        FieldType collectionType = type.getCollectionFieldType();
+        assertThat(collectionType.getType()).isEqualTo("Complex");
+        CaseField leaf = collectionType.getComplexFields().get(0);
+        assertThat(leaf.getFieldType().getType()).isEqualTo("Text");
+        CCDCollectionEntry[] values = new ObjectMapper().treeToValue(field.getValue(), CCDCollectionEntry[].class);
         assertThat(values.length).isEqualTo(2);
     }
 }

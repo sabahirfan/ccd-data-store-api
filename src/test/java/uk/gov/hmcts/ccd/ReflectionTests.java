@@ -106,7 +106,7 @@ public class ReflectionTests {
         assertThat(addressTab.getFields().length).isEqualTo(2);
         CaseField vf = addressTab.getFields()[1];
 
-        assertThat(vf.getFieldType().getComplexFields().size()).isEqualTo(2);
+        assertThat(vf.getFieldType().getComplexFields().size()).isGreaterThanOrEqualTo(2);
     }
 
 }
