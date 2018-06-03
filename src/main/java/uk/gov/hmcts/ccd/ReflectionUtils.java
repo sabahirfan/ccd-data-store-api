@@ -264,37 +264,24 @@ public class ReflectionUtils {
                 throw new RuntimeException(e);
             }
             CaseField f = new CaseField();
-            FieldLabel label = field.getAnnotation(FieldLabel.class);
-            if (null != label) {
-                f.setLabel(label.value());
-            }
             f.setFieldType(fieldType);
-            f.setId(field.getName());
             switch (fieldType.getType()) {
                 case "Complex":
-                    CaseField complex = mapComplexType(value);
-
-                    FieldType cType = new FieldType();
-                    cType.setId(field.getName());
-                    cType.setType("Complex");
-                    cType.setComplexFields(complex.getFieldType().getComplexFields());
-                    f.setFieldType(cType);
+                    f = mapComplexType(value);
                     break;
                 case "Collection":
                     Collection c = (Collection) value;
-                    CaseField collection = mapCollection(c);
-
-                    cType = new FieldType();
-                    cType.setId(field.getName());
-                    cType.setType("Collection");
-                    cType.setComplexFields(collection.getFieldType().getComplexFields());
-                    f.setFieldType(cType);
-                    f.setValue(collection.getValue());
+                    f = mapCollection(c);
                     break;
                     default:
                     f.setValue(new ObjectMapper().valueToTree(value));
                     break;
             }
+            FieldLabel label = field.getAnnotation(FieldLabel.class);
+            if (null != label) {
+                f.setLabel(label.value());
+            }
+            f.setId(field.getName());
             complexFields.add(f);
         }
 
