@@ -239,37 +239,21 @@ public class ReflectionUtils {
         List<CaseField> complexFields = Lists.newArrayList();
         type.setComplexFields(complexFields);
         for (java.lang.reflect.Field field : instance.getClass().getDeclaredFields()) {
-            FieldType fieldType = getFieldType(field);
-            if (fieldType.getType().equals("Unknown")) {
-                continue;
-            }
             field.setAccessible(true);
-            Object value = null;
+            Object value;
             try {
                 value = field.get(instance);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
-            CaseField f = new CaseField();
-            f.setFieldType(fieldType);
-            switch (fieldType.getType()) {
-                case "Complex":
-                    f = mapComplexType(value);
-                    break;
-                case "Collection":
-                    Collection c = (Collection) value;
-                    f = mapCollection(c);
-                    break;
-                    default:
-                    f.setValue(mapper.valueToTree(value));
-                    break;
-            }
+
+            CaseField child = convert(field.getType(), value);
+            child.setId(field.getName());
             FieldLabel label = field.getAnnotation(FieldLabel.class);
             if (null != label) {
-                f.setLabel(label.value());
+                child.setLabel(label.value());
             }
-            f.setId(field.getName());
-            complexFields.add(f);
+            complexFields.add(child);
         }
 
         return result;
@@ -308,22 +292,29 @@ public class ReflectionUtils {
         return values.stream().map(ReflectionUtils::convert).toArray(CaseField[]::new);
     }
 
-    public static CaseField convert(Object value) {
-        String type = ReflectionUtils.determineFieldType(value.getClass());
+    public static CaseField convert(Class type, Object value) {
         CaseField result;
-        if (PRIMITIVES.contains(type)) {
+        String typeName = determineFieldType(type);
+        if (PRIMITIVES.contains(typeName)) {
             result = new CaseField();
-            result.setFieldType(ReflectionUtils.getFieldType(value.getClass()));
-            result.setValue(ReflectionUtils.mapper.valueToTree(value));
-        } else if (type.equals("Collection")) {
+            result.setFieldType(ReflectionUtils.getFieldType(type));
+            if (value != null) {
+                result.setValue(ReflectionUtils.mapper.valueToTree(value));
+            }
+        } else if (typeName.equals("Collection")) {
             result = ReflectionUtils.mapCollection((Collection) value);
         } else {
             result = ReflectionUtils.mapComplexType(value);
         }
-        FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);
-        if (label != null) {
-            result.setLabel(label.value());
+        if (value != null) {
+            FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);
+            if (label != null) {
+                result.setLabel(label.value());
+            }
         }
         return result;
+    }
+    public static CaseField convert(Object value) {
+        return convert(value.getClass(), value);
     }
 }
