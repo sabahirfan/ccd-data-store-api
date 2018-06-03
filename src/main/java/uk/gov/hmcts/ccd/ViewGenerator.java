@@ -11,6 +11,7 @@ import org.springframework.beans.factory.support.SimpleBeanDefinitionRegistry;
 import org.springframework.context.annotation.ClassPathBeanDefinitionScanner;
 import org.springframework.core.type.filter.AssignableTypeFilter;
 import org.springframework.core.type.filter.TypeFilter;
+import uk.gov.hmcts.ccd.definition.FieldLabel;
 import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 
@@ -29,25 +30,26 @@ public class ViewGenerator {
         "Number"
     );
 
-    public static List<CaseField> generate(List<Object> fields) {
-        throw new RuntimeException();
-    }
-
     public static CaseField[] convert(Collection<Object> values) {
         return values.stream().map(ViewGenerator::convert).toArray(CaseField[]::new);
     }
 
     public static CaseField convert(Object value) {
         String type = ReflectionUtils.determineFieldType(value.getClass());
+        CaseField result;
         if (PRIMITIVES.contains(type)) {
-            CaseField result = new CaseField();
+            result = new CaseField();
             result.setFieldType(ReflectionUtils.getFieldType(value.getClass()));
             result.setValue(ReflectionUtils.mapper.valueToTree(value));
-            return result;
+        } else if (type.equals("Collection")) {
+            result = ReflectionUtils.mapCollection((Collection) value);
+        } else {
+            result = ReflectionUtils.mapComplexType(value);
         }
-        if (type.equals("Collection")) {
-            return ReflectionUtils.mapCollection((Collection) value);
+        FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);
+        if (label != null) {
+            result.setLabel(label.value());
         }
-        return ReflectionUtils.mapComplexType(value);
+        return result;
     }
 }

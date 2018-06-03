@@ -41,6 +41,13 @@ public class ViewGeneratorTest {
     }
 
     @Test
+    public void convertsLabels() {
+        CaseField field = ViewGenerator.convert(new WithLabels());
+        assertThat(field.getLabel()).isEqualTo("parent");
+        assertThat(field.getFieldType().getComplexFields().get(0).getLabel()).isEqualTo("child");
+    }
+
+    @Test
     public void convertsComplex() {
         CaseField field = ViewGenerator.convert(new Address());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");

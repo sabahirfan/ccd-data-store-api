@@ -11,12 +11,10 @@ import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
-import uk.gov.hmcts.ccd.domain.model.definition.FixedListItem;
 import uk.gov.hmcts.ccd.domain.model.search.Field;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 
-import javax.swing.text.View;
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
@@ -180,8 +178,6 @@ public class ReflectionUtils {
             CaseField[] fields = ViewGenerator.convert(view.render(c));
             for (CaseField caseViewField : fields) {
                 caseViewField.setOrder(i);
-                caseViewField.setLabel("placeholder");
-                caseViewField.setId("placeholder");
             }
 
             caseViewTab.setFields(fields);
