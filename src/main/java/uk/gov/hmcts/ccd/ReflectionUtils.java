@@ -22,6 +22,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
+    private static ImmutableSet PRIMITIVES = ImmutableSet.of(
+        "Text",
+        "Date",
+        "Number"
+    );
+
     public static final ObjectMapper mapper = new ObjectMapper();
     static {
         mapper.registerModule(new JavaTimeModule());
@@ -175,7 +181,7 @@ public class ReflectionUtils {
             caseViewTab.setId(view.getTab());
             caseViewTab.setLabel(view.getTab());
 
-            CaseField[] fields = ViewGenerator.convert(view.render(c));
+            CaseField[] fields = convert(view.render(c));
             for (CaseField caseViewField : fields) {
                 caseViewField.setOrder(i);
             }
@@ -294,6 +300,30 @@ public class ReflectionUtils {
         }
         result.setValue(mapper.valueToTree(entries));
 
+        return result;
+    }
+
+
+    public static CaseField[] convert(Collection<Object> values) {
+        return values.stream().map(ReflectionUtils::convert).toArray(CaseField[]::new);
+    }
+
+    public static CaseField convert(Object value) {
+        String type = ReflectionUtils.determineFieldType(value.getClass());
+        CaseField result;
+        if (PRIMITIVES.contains(type)) {
+            result = new CaseField();
+            result.setFieldType(ReflectionUtils.getFieldType(value.getClass()));
+            result.setValue(ReflectionUtils.mapper.valueToTree(value));
+        } else if (type.equals("Collection")) {
+            result = ReflectionUtils.mapCollection((Collection) value);
+        } else {
+            result = ReflectionUtils.mapComplexType(value);
+        }
+        FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);
+        if (label != null) {
+            result.setLabel(label.value());
+        }
         return result;
     }
 }

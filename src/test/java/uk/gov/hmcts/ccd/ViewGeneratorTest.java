@@ -35,28 +35,28 @@ public class ViewGeneratorTest {
 
     @Test
     public void convertsString() {
-        CaseField field = ViewGenerator.convert("hello");
+        CaseField field = ReflectionUtils.convert("hello");
         assertThat(field.getFieldType().getType()).isEqualTo("Text");
         assertThat(field.getValue().isTextual()).isTrue();
     }
 
     @Test
     public void convertsLabels() {
-        CaseField field = ViewGenerator.convert(new WithLabels());
+        CaseField field = ReflectionUtils.convert(new WithLabels());
         assertThat(field.getLabel()).isEqualTo("parent");
         assertThat(field.getFieldType().getComplexFields().get(0).getLabel()).isEqualTo("child");
     }
 
     @Test
     public void convertsComplex() {
-        CaseField field = ViewGenerator.convert(new Address());
+        CaseField field = ReflectionUtils.convert(new Address());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         assertThat(field.getFieldType().getComplexFields().get(0).getValue().toString()).contains("test line 1");
     }
 
     @Test
     public void convertsStringList() throws JsonProcessingException {
-        CaseField field = ViewGenerator.convert((Object) Lists.newArrayList("Hello", "World"));
+        CaseField field = ReflectionUtils.convert((Object) Lists.newArrayList("Hello", "World"));
         assertThat(field.getFieldType().getType()).isEqualTo("Collection");
         CCDCollectionEntry[] values = new ObjectMapper().treeToValue(field.getValue(), CCDCollectionEntry[].class);
         assertThat(values.length).isEqualTo(2);
@@ -64,7 +64,7 @@ public class ViewGeneratorTest {
 
     @Test
     public void convertsHasStringList() throws JsonProcessingException {
-        CaseField field = ViewGenerator.convert(new HasStringList());
+        CaseField field = ReflectionUtils.convert(new HasStringList());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         CaseField collection = field.getFieldType().getComplexFields().get(0);
         assertThat(collection.getFieldType().getType()).isEqualTo("Collection");
@@ -74,7 +74,7 @@ public class ViewGeneratorTest {
 
     @Test
     public void convertsComplexList() throws JsonProcessingException {
-        CaseField field = ViewGenerator.convert((Object)Lists.newArrayList(new Address(), new Address()));
+        CaseField field = ReflectionUtils.convert((Object)Lists.newArrayList(new Address(), new Address()));
         FieldType type = field.getFieldType();
         assertThat(type.getType()).isEqualTo("Collection");
         FieldType collectionType = type.getCollectionFieldType();
@@ -90,7 +90,7 @@ public class ViewGeneratorTest {
     @Test
     public void handlesEnum() {
         HasEnum h = new HasEnum();
-        CaseField s = ViewGenerator.convert(h);
+        CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
         assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Text");
     }
@@ -98,7 +98,7 @@ public class ViewGeneratorTest {
     @Test
     public void handlesInt() {
         WithInt h = new WithInt();
-        CaseField s = ViewGenerator.convert(h);
+        CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
         assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Number");
     }
@@ -108,17 +108,13 @@ public class ViewGeneratorTest {
         Settlement s = new Settlement();
         Offer offer = new Offer("Some offer details", LocalDate.now());
         s.makeOffer(offer, MadeBy.CLAIMANT);
-        CaseField field = ViewGenerator.convert(s);
-        ObjectMapper o = new ObjectMapper();
-        o.enable(SerializationFeature.INDENT_OUTPUT);
-        o.setSerializationInclusion(JsonInclude.Include.NON_NULL);
-        System.out.println(o.valueToTree(field));
+        CaseField field = ReflectionUtils.convert(s);
     }
 
     @Test
     public void serialisesDatesCorrectly() {
         LocalDate local = LocalDate.of(2009, 1, 1);
-        CaseField field = ViewGenerator.convert(local);
+        CaseField field = ReflectionUtils.convert(local);
         assertThat(field.getValue().toString()).contains("2009-01-01");
     }
 }
