@@ -241,7 +241,7 @@ public class ReflectionUtils {
         return caseViewField;
     }
 
-    private static String determineFieldType(Class c) {
+    public static String determineFieldType(Class c) {
         switch (c.getSimpleName()) {
             case "String":
                 return "Text";
@@ -256,14 +256,20 @@ public class ReflectionUtils {
         return "Unknown";
     }
 
-    private static FieldType getFieldType(java.lang.reflect.Field field) {
+
+    public static FieldType getFieldType(Class c) {
         FieldType type = new FieldType();
-        String typeId = determineFieldType(field.getType());
-        if (field.getAnnotation(ComplexType.class) != null) {
-            typeId = "Complex";
-        }
+        String typeId = determineFieldType(c);
         type.setId(typeId);
         type.setType(typeId);
+        return type;
+    }
+
+    private static FieldType getFieldType(java.lang.reflect.Field field) {
+        FieldType type = getFieldType(field.getType());
+        if (field.getAnnotation(ComplexType.class) != null) {
+            type.setType("Complex");
+        }
         return type;
     }
 

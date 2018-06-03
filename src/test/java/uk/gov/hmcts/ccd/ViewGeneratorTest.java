@@ -2,6 +2,7 @@ package uk.gov.hmcts.ccd;
 
 import org.assertj.core.util.Lists;
 import org.junit.Test;
+import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
@@ -20,4 +21,10 @@ public class ViewGeneratorTest {
     }
 
 
+    @Test
+    public void convertsString() {
+        CaseField field = ViewGenerator.convert("hello");
+        assertThat(field.getFieldType().getType()).isEqualTo("Text");
+        assertThat(field.getValue().isTextual());
+    }
 }
