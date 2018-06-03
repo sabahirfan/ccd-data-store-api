@@ -16,6 +16,7 @@ import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.*;
@@ -239,6 +240,9 @@ public class ReflectionUtils {
         List<CaseField> complexFields = Lists.newArrayList();
         type.setComplexFields(complexFields);
         for (java.lang.reflect.Field field : instance.getClass().getDeclaredFields()) {
+            if (Modifier.isStatic(field.getModifiers())) {
+                continue;
+            }
             field.setAccessible(true);
             Object value;
             try {
