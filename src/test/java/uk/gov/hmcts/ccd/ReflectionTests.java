@@ -9,7 +9,9 @@ import org.springframework.test.context.junit4.SpringRunner;
 import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
-import uk.gov.hmcts.ccd.types.*;
+import uk.gov.hmcts.ccd.types.fields.HasDate;
+import uk.gov.hmcts.ccd.types.fields.TestAddress;
+import uk.gov.hmcts.ccd.types.fields.TwoFields;
 import uk.gov.hmcts.ccd.types.model.*;
 import uk.gov.hmcts.ccd.types.nested.WithSubClass;
 

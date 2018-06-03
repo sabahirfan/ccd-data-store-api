@@ -1,4 +1,4 @@
-package uk.gov.hmcts.ccd.types;
+package uk.gov.hmcts.ccd.types.fields;
 
 import lombok.Getter;
 import lombok.Setter;

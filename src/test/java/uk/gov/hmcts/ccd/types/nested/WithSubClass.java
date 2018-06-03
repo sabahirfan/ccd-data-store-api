@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 import uk.gov.hmcts.ccd.definition.CaseListField;
 import uk.gov.hmcts.ccd.definition.ComplexType;
-import uk.gov.hmcts.ccd.types.Address;
+import uk.gov.hmcts.ccd.types.fields.Address;
 
 @Getter
 @Setter

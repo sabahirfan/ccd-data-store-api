@@ -1,9 +1,8 @@
 package uk.gov.hmcts.ccd;
 
 import org.junit.Test;
-import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
-import uk.gov.hmcts.ccd.types.Address;
+import uk.gov.hmcts.ccd.types.fields.Address;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
