@@ -11,10 +11,7 @@ import java.util.Objects;
 
 public class Offer {
 
-    static final int CONTENT_LENGTH_LIMIT = 99000;
-
     @NotBlank
-    @Size(max = CONTENT_LENGTH_LIMIT, message = "may not be longer than {max} characters")
     private final String content;
 
     @NotNull

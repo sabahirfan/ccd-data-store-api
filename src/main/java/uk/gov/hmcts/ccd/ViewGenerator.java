@@ -23,7 +23,6 @@ import java.util.stream.Collectors;
 
 public class ViewGenerator {
 
-    private static ObjectMapper mapper = new ObjectMapper();
     private static ImmutableSet PRIMITIVES = ImmutableSet.of(
         "Text",
         "Date",
@@ -43,7 +42,7 @@ public class ViewGenerator {
         if (PRIMITIVES.contains(type)) {
             CaseField result = new CaseField();
             result.setFieldType(ReflectionUtils.getFieldType(value.getClass()));
-            result.setValue(mapper.valueToTree(value));
+            result.setValue(ReflectionUtils.mapper.valueToTree(value));
             return result;
         }
         if (type.equals("Collection")) {

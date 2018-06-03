@@ -1,23 +1,25 @@
 package uk.gov.hmcts.ccd;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Lists;
+import org.apache.tomcat.jni.Local;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
 import uk.gov.hmcts.ccd.types.cmc.MadeBy;
 import uk.gov.hmcts.ccd.types.cmc.Offer;
 import uk.gov.hmcts.ccd.types.cmc.Settlement;
-import uk.gov.hmcts.ccd.types.fields.Address;
-import uk.gov.hmcts.ccd.types.fields.HasEnum;
-import uk.gov.hmcts.ccd.types.fields.HasStringList;
-import uk.gov.hmcts.ccd.types.fields.WithInt;
+import uk.gov.hmcts.ccd.types.fields.*;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
 import java.time.LocalDate;
 import java.util.Collection;
+import java.util.Date;
+import java.util.LinkedHashMap;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -74,6 +76,8 @@ public class ViewGeneratorTest {
         assertThat(leaf.getFieldType().getType()).isEqualTo("Text");
         CCDCollectionEntry[] values = new ObjectMapper().treeToValue(field.getValue(), CCDCollectionEntry[].class);
         assertThat(values.length).isEqualTo(2);
+        LinkedHashMap l = (LinkedHashMap) values[0].value;
+        assertThat(l.get("line1")).isEqualTo("test line 1");
     }
 
     @Test
@@ -98,5 +102,16 @@ public class ViewGeneratorTest {
         Offer offer = new Offer("Some offer details", LocalDate.now());
         s.makeOffer(offer, MadeBy.CLAIMANT);
         CaseField field = ViewGenerator.convert(s);
+        ObjectMapper o = new ObjectMapper();
+        o.enable(SerializationFeature.INDENT_OUTPUT);
+        o.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        System.out.println(o.valueToTree(field));
+    }
+
+    @Test
+    public void serialisesDatesCorrectly() {
+        LocalDate local = LocalDate.of(2009, 1, 1);
+        CaseField field = ViewGenerator.convert(local);
+        assertThat(field.getValue().toString()).contains("2009-01-01");
     }
 }

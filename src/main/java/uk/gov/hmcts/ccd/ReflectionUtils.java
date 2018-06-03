@@ -1,6 +1,9 @@
 package uk.gov.hmcts.ccd;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
@@ -21,6 +24,12 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
+    public static final ObjectMapper mapper = new ObjectMapper();
+    static {
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(new ISO8601DateFormat());
+    }
 
     public static List<CaseField> getCaseListFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
@@ -200,10 +209,9 @@ public class ReflectionUtils {
         }
         CaseField caseViewField = new CaseField();
         caseViewField.setFieldType(getFieldType(declaredField));
-        ObjectMapper m = new ObjectMapper();
         try {
             declaredField.setAccessible(true);
-            caseViewField.setValue(m.valueToTree(declaredField.get(c)));
+            caseViewField.setValue(mapper.valueToTree(declaredField.get(c)));
         } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
         }
@@ -279,7 +287,7 @@ public class ReflectionUtils {
                     f = mapCollection(c);
                     break;
                     default:
-                    f.setValue(new ObjectMapper().valueToTree(value));
+                    f.setValue(mapper.valueToTree(value));
                     break;
             }
             FieldLabel label = field.getAnnotation(FieldLabel.class);
@@ -314,9 +322,9 @@ public class ReflectionUtils {
 
         int t = 1;
         for (Object o : c) {
-            entries.add(new CCDCollectionEntry(String.valueOf(t++), o.toString()));
+            entries.add(new CCDCollectionEntry(String.valueOf(t++), o));
         }
-        result.setValue(new ObjectMapper().valueToTree(entries));
+        result.setValue(mapper.valueToTree(entries));
 
         return result;
     }

@@ -12,7 +12,6 @@ import static java.lang.String.format;
 
 public class Settlement {
 
-    private static final String NO_STATEMENTS_MADE = "No statements have yet been made during that settlement";
     private final List<PartyStatement> partyStatements = new ArrayList<>();
 
     public void makeOffer(Offer offer, MadeBy party) {
