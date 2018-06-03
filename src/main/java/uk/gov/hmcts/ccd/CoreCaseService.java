@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewEvent;
@@ -41,10 +42,12 @@ public class CoreCaseService {
 
     @Autowired
     private ObjectMapper objectMapper = new ObjectMapper();
+    private List<ICaseView> views;
 
-    public CoreCaseService(CCDAppConfig config, ICCDApplication application) {
+    public CoreCaseService(CCDAppConfig config, ICCDApplication application, List<ICaseView> views) {
         this.config = config;
         this.application = application;
+        this.views = views;
         this.caseClass = ReflectionUtils.getCaseType(application.getClass());
     }
 
