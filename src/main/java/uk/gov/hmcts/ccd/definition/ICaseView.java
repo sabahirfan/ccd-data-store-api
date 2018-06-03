@@ -6,5 +6,5 @@ import java.util.List;
 
 public interface ICaseView<T extends ICase> {
     String getTab();
-    void render(T theCase, List<Object> renderer);
+    List<Object> render(T theCase);
 }

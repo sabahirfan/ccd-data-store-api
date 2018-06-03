@@ -23,6 +23,8 @@ public class FakeCase implements ICase {
     @ComplexType
     private Party sub = new Party();
 
+    public static final FakeCase C = new FakeCase("D", "P");
+
     public FakeCase(String defendantName, String prosecutorName) {
         this.defendantName = defendantName;
         this.prosecutorName = prosecutorName;
