@@ -144,6 +144,14 @@ public class ViewGeneratorTest {
 
 
     @Test
+    public void handlesInterfaces() {
+        HasInterfaceType h = new HasInterfaceType();
+        CaseField s = ReflectionUtils.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields().size()).isEqualTo(1);
+    }
+
+    @Test
     public void ignoresEmptyOptional() {
         HasOptionals h = new HasOptionals();
         CaseField s = ReflectionUtils.convert(h);

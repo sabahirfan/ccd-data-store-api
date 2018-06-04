@@ -287,7 +287,7 @@ public class ReflectionUtils {
      */
     private static List<java.lang.reflect.Field> getAllFields(Class clazz) {
         List<java.lang.reflect.Field> result = Lists.newArrayList();
-        while (clazz != Object.class) {
+        while (clazz != null && clazz != Object.class) {
             java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
 
             result.addAll(Lists.newArrayList(fields));
