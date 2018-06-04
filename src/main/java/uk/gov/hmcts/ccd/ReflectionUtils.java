@@ -239,17 +239,21 @@ public class ReflectionUtils {
         return type;
     }
 
-    public static CaseField mapComplexType(Object instance) {
+    public static CaseField mapComplexType(Class clazz, Object instance) {
         CaseField result = new CaseField();
         FieldType type = new FieldType();
         type.setType("Complex");
         result.setFieldType(type);
         List<CaseField> complexFields = Lists.newArrayList();
         type.setComplexFields(complexFields);
-        for (java.lang.reflect.Field field : instance.getClass().getDeclaredFields()) {
+        for (java.lang.reflect.Field field : clazz.getDeclaredFields()) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
+            if (instance == null) {
+                continue;
+            }
+            
             field.setAccessible(true);
             Object value;
             try {
@@ -284,7 +288,7 @@ public class ReflectionUtils {
         FieldType listType = getFieldType(instance.getClass());
         type.setCollectionFieldType(listType);
         if (listType.getType().equals("Complex")) {
-            CaseField cf = mapComplexType(instance);
+            CaseField cf = mapComplexType(instance.getClass(), instance);
             type.getCollectionFieldType().setComplexFields(cf.getFieldType().getComplexFields());
         }
         List<CCDCollectionEntry> entries = Lists.newArrayList();
@@ -315,7 +319,7 @@ public class ReflectionUtils {
         } else if (typeName.equals("Collection")) {
             result = ReflectionUtils.mapCollection((Collection) value);
         } else {
-            result = ReflectionUtils.mapComplexType(value);
+            result = ReflectionUtils.mapComplexType(type, value);
         }
         if (value != null) {
             FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);

@@ -70,14 +70,14 @@ public class ReflectionTests {
 
     @Test
     public void mapsComplextype() {
-        CaseField field = ReflectionUtils.mapComplexType(new TestAddress());
+        CaseField field = ReflectionUtils.mapComplexType(TestAddress.class, new TestAddress());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         assertThat(field.getFieldType().getComplexFields().size()).isGreaterThanOrEqualTo(3);
         assertThat(field.getFieldType().getComplexFields().get(0).getLabel()).isEqualTo("test");
     }
     @Test
     public void mapsNestedComplexType() {
-        CaseField field = ReflectionUtils.mapComplexType(new Party());
+        CaseField field = ReflectionUtils.mapComplexType(Party.class, new Party());
         assertThat(field.getFieldType().getType()).isEqualTo("Complex");
         assertThat(field.getFieldType().getComplexFields().size()).isGreaterThanOrEqualTo(2);
         assertThat(field.getFieldType().getComplexFields().get(1).getFieldType().getType()).isEqualTo("Complex");

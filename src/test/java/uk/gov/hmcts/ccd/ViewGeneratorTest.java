@@ -102,6 +102,14 @@ public class ViewGeneratorTest {
     }
 
     @Test
+    public void handlesNullSubtype() {
+        HasNullComplexChild h = new HasNullComplexChild();
+        CaseField s = ReflectionUtils.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Complex");
+    }
+
+    @Test
     public void handlesUUID() {
         WithUUID h = new WithUUID();
         CaseField s = ReflectionUtils.convert(h);
