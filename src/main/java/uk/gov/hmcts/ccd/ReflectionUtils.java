@@ -1,8 +1,10 @@
 package uk.gov.hmcts.ccd;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
@@ -32,7 +34,10 @@ public class ReflectionUtils {
     public static final ObjectMapper mapper = new ObjectMapper();
     static {
         mapper.registerModule(new JavaTimeModule());
+        mapper.registerModule(new Jdk8Module());
         mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setSerializationInclusion(JsonInclude.Include.NON_EMPTY);
+
         mapper.setDateFormat(new ISO8601DateFormat());
     }
 
@@ -308,7 +313,7 @@ public class ReflectionUtils {
 
         int t = 1;
         for (Object o : c) {
-            entries.add(new CCDCollectionEntry(String.valueOf(t++), o));
+            entries.add(new CCDCollectionEntry(String.valueOf(t++), mapper.valueToTree(o)));
         }
         result.setValue(mapper.valueToTree(entries));
 

@@ -142,6 +142,14 @@ public class ViewGeneratorTest {
         assertThat(complex.size()).isEqualTo(3);
     }
 
+
+    @Test
+    public void ignoresEmptyOptional() {
+        HasOptionals h = new HasOptionals();
+        CaseField s = ReflectionUtils.convert(h);
+        assertThat(ReflectionUtils.mapper.valueToTree(s).toString()).doesNotContain("present");
+    }
+
     @Test
     public void serialisesDatesCorrectly() {
         LocalDate local = LocalDate.of(2009, 1, 1);
