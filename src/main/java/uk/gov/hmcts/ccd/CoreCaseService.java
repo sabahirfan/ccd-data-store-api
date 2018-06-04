@@ -174,9 +174,9 @@ public class CoreCaseService {
 
     public CaseEventTrigger getCaseEventTrigger(String caseId, String eventTriggerId) {
 
-        Class eventType = (Class) application.eventsMapping().get(eventTriggerId);
+        EventConfig eventCfg = (EventConfig) application.eventsMapping().get(eventTriggerId);
 
-        List<CaseField> fields = ReflectionUtils.getCaseViewFieldForEvent(eventType);
+        List<CaseField> fields = ReflectionUtils.getCaseViewFieldForEvent(eventCfg.objType);
 
         CaseEventTrigger caseEventTrigger = new CaseEventTrigger();
         caseEventTrigger.setCaseFields(fields);
