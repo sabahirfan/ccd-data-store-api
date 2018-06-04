@@ -203,11 +203,14 @@ public class ReflectionUtils {
             case "Long":
             case "long":
             case "int":
+            case "BigDecimal":
                 return "Number";
             case "LocalDate":
             case "LocalDateTime":
             case "Date":
                 return "Date";
+            case "UUID":
+                return "Text";
         }
         if (c.isEnum()) {
             return "Text";

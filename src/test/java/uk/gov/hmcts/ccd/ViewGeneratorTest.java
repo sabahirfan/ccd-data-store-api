@@ -1,11 +1,8 @@
 package uk.gov.hmcts.ccd;
 
-import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import com.google.common.collect.Lists;
-import org.apache.tomcat.jni.Local;
 import org.junit.Test;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
@@ -17,8 +14,6 @@ import uk.gov.hmcts.ccd.types.model.FakeCase;
 import uk.gov.hmcts.ccd.types.model.FakeView;
 
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 
@@ -96,12 +91,22 @@ public class ViewGeneratorTest {
     }
 
     @Test
-    public void handlesInt() {
-        WithInt h = new WithInt();
+    public void handlesNumbers() {
+        WithNumbers h = new WithNumbers();
         CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
         assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Number");
         assertThat(s.getFieldType().getComplexFields().get(1).getFieldType().getType()).isEqualTo("Number");
+        assertThat(s.getFieldType().getComplexFields().get(2).getFieldType().getType()).isEqualTo("Number");
+        assertThat(s.getFieldType().getComplexFields().get(2).getValue()).isEqualTo(1);
+    }
+
+    @Test
+    public void handlesUUID() {
+        WithUUID h = new WithUUID();
+        CaseField s = ReflectionUtils.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Text");
     }
 
     @Test
