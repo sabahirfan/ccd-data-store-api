@@ -134,6 +134,15 @@ public class ViewGeneratorTest {
     }
 
     @Test
+    public void handlesInheritedFields() {
+        SublassesTwoFields h = new SublassesTwoFields();
+        CaseField s = ReflectionUtils.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        List<CaseField> complex = s.getFieldType().getComplexFields();
+        assertThat(complex.size()).isEqualTo(3);
+    }
+
+    @Test
     public void serialisesDatesCorrectly() {
         LocalDate local = LocalDate.of(2009, 1, 1);
         CaseField field = ReflectionUtils.convert(local);
