@@ -8,6 +8,6 @@ import uk.gov.hmcts.ccd.definition.CaseListField;
 @Setter
 public class TwoFields {
     @CaseListField(label = "Foo Bar")
-    private String fooBar;
-    private String without;
+    private String fooBar = "foo";
+    private String without = "bar";
 }

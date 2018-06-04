@@ -6,6 +6,6 @@ public class TestAddress {
     private static String ignored = "ignore me!";
     @FieldLabel(value = "test")
     private String line1 = "foo";
-    private String line2;
-    private String postcode;
+    private String line2 = "bar";
+    private String postcode = "BAZ";
 }
