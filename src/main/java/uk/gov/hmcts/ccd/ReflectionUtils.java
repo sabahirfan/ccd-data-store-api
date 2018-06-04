@@ -266,6 +266,9 @@ public class ReflectionUtils {
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
+            if (value == null) {
+                continue;
+            }
 
             CaseField child = convert(field.getType(), value);
             child.setId(field.getName());
@@ -313,7 +316,7 @@ public class ReflectionUtils {
 
         int t = 1;
         for (Object o : c) {
-            entries.add(new CCDCollectionEntry(String.valueOf(t++), mapper.valueToTree(o)));
+            entries.add(new CCDCollectionEntry(String.valueOf(t++), o));
         }
         result.setValue(mapper.valueToTree(entries));
 

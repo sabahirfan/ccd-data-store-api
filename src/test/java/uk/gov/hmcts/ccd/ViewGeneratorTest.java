@@ -106,7 +106,7 @@ public class ViewGeneratorTest {
         HasNullComplexChild h = new HasNullComplexChild();
         CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
-        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields()).isEmpty();
     }
 
     @Test
@@ -130,7 +130,7 @@ public class ViewGeneratorTest {
         HasNullList h = new HasNullList();
         CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
-        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Collection");
+        assertThat(s.getFieldType().getComplexFields()).isEmpty();
     }
 
     @Test
