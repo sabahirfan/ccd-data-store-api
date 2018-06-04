@@ -7,6 +7,7 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.ccd.definition.EventConfig;
 import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
@@ -205,6 +206,13 @@ public class CoreCaseService {
     }
 
     public void handleTrigger(String caseID, CaseDataContent caseDetails) {
-        application.handleTrigger(caseID, caseDetails);
+        String eventId = caseDetails.getEvent().getEventId();
+
+        EventConfig cfg = (EventConfig) application.eventsMapping().get(eventId);
+
+        cfg.handler.accept(
+            caseID,
+            objectMapper.convertValue(caseDetails.getData(), cfg.objType)
+        );
     }
 }

@@ -4,9 +4,9 @@ import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import uk.gov.hmcts.ccd.ICCDApplication;
+import uk.gov.hmcts.ccd.definition.EventConfig;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.ProfileCaseState;
-import uk.gov.hmcts.ccd.domain.model.std.CaseDataContent;
 import uk.gov.hmcts.ccd.types.model.FakeCase;
 
 import java.util.Arrays;
@@ -48,17 +48,12 @@ public class FakeCCDImplementation implements ICCDApplication<FakeCase> {
     }
 
     @Override
-    public void handleTrigger(String caseID, CaseDataContent caseDetails) {
-
-    }
-
-    @Override
     public ProfileCaseState getCaseState(String caseId) {
         return new ProfileCaseState();
     }
 
     @Override
-    public Map<String, Class> eventsMapping() {
+    public Map<String, EventConfig> eventsMapping() {
         return Maps.newHashMap();
     }
 }
