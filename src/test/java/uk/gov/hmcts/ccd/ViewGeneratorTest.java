@@ -101,6 +101,7 @@ public class ViewGeneratorTest {
         CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
         assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Number");
+        assertThat(s.getFieldType().getComplexFields().get(1).getFieldType().getType()).isEqualTo("Number");
     }
 
     @Test

@@ -201,6 +201,7 @@ public class ReflectionUtils {
                 return "Text";
             case "Integer":
             case "Long":
+            case "long":
             case "int":
                 return "Number";
             case "LocalDate":
