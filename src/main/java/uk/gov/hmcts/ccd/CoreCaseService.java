@@ -7,19 +7,14 @@ import com.google.common.collect.Lists;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
+import uk.gov.hmcts.ccd.definition.ICaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseEventTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseView;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewEvent;
-import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewJurisdiction;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTrigger;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewType;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseDetails;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseEvent;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseState;
-import uk.gov.hmcts.ccd.domain.model.definition.CaseType;
-import uk.gov.hmcts.ccd.domain.model.definition.WizardPage;
-import uk.gov.hmcts.ccd.domain.model.definition.WizardPageField;
+import uk.gov.hmcts.ccd.domain.model.definition.*;
 import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultView;
 import uk.gov.hmcts.ccd.domain.model.search.SearchResultViewColumn;
@@ -47,10 +42,12 @@ public class CoreCaseService {
 
     @Autowired
     private ObjectMapper objectMapper = new ObjectMapper();
+    private List<ICaseView> views;
 
-    public CoreCaseService(CCDAppConfig config, ICCDApplication application) {
+    public CoreCaseService(CCDAppConfig config, ICCDApplication application, List<ICaseView> views) {
         this.config = config;
         this.application = application;
+        this.views = views;
         this.caseClass = ReflectionUtils.getCaseType(application.getClass());
     }
 
@@ -59,7 +56,7 @@ public class CoreCaseService {
         result.setId(config.getCaseTypeId());
         result.setName(config.getCaseTypeId());
         result.setDescription(config.getCaseTypeId());
-        result.setCaseFields(ReflectionUtils.generateFields(caseClass));
+        result.setCaseFields(ReflectionUtils.getCaseListFields(caseClass));
 
         List<CaseState> states = Lists.newArrayList();
         ReflectionUtils.extractStates(caseClass).stream().forEach(x -> states.add(createState(x.toString())));
@@ -90,7 +87,7 @@ public class CoreCaseService {
     public CaseView getCaseView(String jurisdictionId, String caseTypeId, String caseId) {
         CaseView caseView = new CaseView();
         caseView.setCaseId(caseId);
-        caseView.setTabs(ReflectionUtils.generateCaseViewTabs(application.getCase(caseId)));
+        caseView.setTabs(ReflectionUtils.generateCaseViewTabs(application.getCase(caseId), views));
         caseView.setChannels(getChannels());
         caseView.setTriggers(getTriggers(caseId));
 
@@ -154,13 +151,13 @@ public class CoreCaseService {
     }
 
     public SearchResultView search(Map<String, String> criteria) {
-        SearchResultViewColumn[] columns = ReflectionUtils.generateFields(caseClass).stream().map(x ->
+        SearchResultViewColumn[] columns = ReflectionUtils.getCaseListFields(caseClass).stream().map(x ->
                 new SearchResultViewColumn(x.getId(), x.getFieldType(), x.getLabel(), 1)
         ).toArray(SearchResultViewColumn[]::new);
 
         List<ICase> cases = application.getCases(criteria);
         SearchResultViewItem[] items = cases.stream().map(x -> {
-            return new SearchResultViewItem(x.getCaseId(), objectMapper.valueToTree(ReflectionUtils.getCaseView(x)));
+            return new SearchResultViewItem(x.getCaseId(), objectMapper.valueToTree(ReflectionUtils.getCaseListViewModel(x)));
         }).toArray(SearchResultViewItem[]::new);
         return new SearchResultView(columns, items);
     }
@@ -178,7 +175,7 @@ public class CoreCaseService {
 
         Class eventType = (Class) application.eventsMapping().get(eventTriggerId);
 
-        List<CaseViewField> fields = ReflectionUtils.getCaseViewFieldForEvent(eventType);
+        List<CaseField> fields = ReflectionUtils.getCaseViewFieldForEvent(eventType);
 
         CaseEventTrigger caseEventTrigger = new CaseEventTrigger();
         caseEventTrigger.setCaseFields(fields);

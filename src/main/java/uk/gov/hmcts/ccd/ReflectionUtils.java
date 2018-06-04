@@ -1,17 +1,13 @@
 package uk.gov.hmcts.ccd;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.common.collect.ImmutableMap;
+import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.util.ISO8601DateFormat;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import uk.gov.hmcts.ccd.definition.CaseEventField;
-import uk.gov.hmcts.ccd.definition.CaseListField;
-import uk.gov.hmcts.ccd.definition.CaseSearchableField;
-import uk.gov.hmcts.ccd.definition.CaseViewField;
-import uk.gov.hmcts.ccd.definition.CaseViewTabs;
-import uk.gov.hmcts.ccd.definition.ComplexType;
-import uk.gov.hmcts.ccd.definition.FieldLabel;
+import uk.gov.hmcts.ccd.definition.*;
 import uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewTab;
 import uk.gov.hmcts.ccd.domain.model.definition.CaseField;
 import uk.gov.hmcts.ccd.domain.model.definition.FieldType;
@@ -20,21 +16,27 @@ import uk.gov.hmcts.ccd.domain.model.search.SearchInput;
 import uk.gov.hmcts.ccd.domain.model.search.WorkbasketInput;
 
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class ReflectionUtils {
-    private static ImmutableMap<String, String> typeMap = ImmutableMap.of(
-            "String", "Text"
+    private static ImmutableSet PRIMITIVES = ImmutableSet.of(
+        "Text",
+        "Date",
+        "Number"
     );
 
-    public static List<CaseField> generateFields(Class c) {
+    public static final ObjectMapper mapper = new ObjectMapper();
+    static {
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+        mapper.setDateFormat(new ISO8601DateFormat());
+    }
+
+    public static List<CaseField> getCaseListFields(Class c) {
         List<CaseField> result = Lists.newArrayList();
         for (java.lang.reflect.Field field : c.getDeclaredFields()) {
             CaseListField cf = field.getAnnotation(CaseListField.class);
@@ -47,7 +49,7 @@ public class ReflectionUtils {
                 result.add(caseField);
             } else {
                 if (field.getAnnotation(ComplexType.class) != null) {
-                    result.addAll(generateFields(field.getType()));
+                    result.addAll(getCaseListFields(field.getType()));
                 }
             }
         }
@@ -55,8 +57,11 @@ public class ReflectionUtils {
         return result;
     }
 
-    public static Map<String, Object> getCaseView(Object c) {
-
+    /**
+     * Get a view model for the case list consisting of a flattened
+     * map of all the fields the list needs.
+     */
+    public static Map<String, Object> getCaseListViewModel(Object c) {
         Map<String, Object> result = Maps.newHashMap();
         try {
             for (java.lang.reflect.Field field : c.getClass().getDeclaredFields()) {
@@ -66,7 +71,7 @@ public class ReflectionUtils {
                     result.put(field.getName(), field.get(c));
                 } else {
                     if (field.getAnnotation(ComplexType.class) != null) {
-                        result.putAll(getCaseView(field.get(c)));
+                        result.putAll(getCaseListViewModel(field.get(c)));
                     }
                 }
             }
@@ -76,14 +81,14 @@ public class ReflectionUtils {
         return result;
     }
 
-    public static List<uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField> getCaseViewFieldForEvent(
+    public static List<CaseField> getCaseViewFieldForEvent(
         Class eventClass
     ) {
         return Arrays.stream(eventClass.getDeclaredFields())
             .map(f -> {
                 CaseEventField annotation = f.getAnnotation(CaseEventField.class);
                 if (annotation != null) {
-                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField cvf = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
+                    CaseField cvf = new CaseField();
                     cvf.setId(f.getName());
                     cvf.setFieldType(getFieldType(f));
                     cvf.setOrder(annotation.order());
@@ -168,144 +173,152 @@ public class ReflectionUtils {
         }
     }
 
-    public static CaseViewTab[] generateCaseViewTabs(ICase c) {
-        Class caseClass = c.getClass();
-        Map<String, CaseViewTab> caseViewTabs = new HashMap<>();
-        CaseViewTabs annotation = (CaseViewTabs) caseClass.getAnnotation(CaseViewTabs.class);
-        String[] caseTabs = annotation.value();
-        for (int i = 0; i < caseTabs.length; i++) {
-            String tab = caseTabs[i];
+    public static CaseViewTab[] generateCaseViewTabs(ICase c, List<ICaseView> views) {
+        List<CaseViewTab> tabs = Lists.newArrayList();
+        int i = 0;
+        for (ICaseView view : views) {
             CaseViewTab caseViewTab = new CaseViewTab();
-            caseViewTab.setOrder(i + 1);
-            caseViewTab.setId(tab);
-            caseViewTab.setLabel(tab);
-            caseViewTabs.put(tab, caseViewTab);
-        }
+            caseViewTab.setOrder(i++);
+            caseViewTab.setId(view.getTab());
+            caseViewTab.setLabel(view.getTab());
 
-        java.lang.reflect.Field[] declaredFields = caseClass.getDeclaredFields();
-        for (int i = 0; i < declaredFields.length; i++) {
-            java.lang.reflect.Field declaredField = declaredFields[i];
-            CaseViewField cf = declaredField.getAnnotation(CaseViewField.class);
-            if (cf != null) {
-                for (String tab : cf.tab()) {
-                    CaseViewTab caseViewTab = caseViewTabs.get(tab);
-                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField[] fields = caseViewTab.getFields();
-                    if (fields == null) {
-                        fields = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField[1];
-                    }
-                    uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = getCaseViewField(c,declaredField);
-                    if (null == caseViewField) {
-                        continue;
-                    }
-
-                    caseViewField.setOrder(i + 1);
-                    caseViewField.setLabel(cf.label());
-                    caseViewField.setId(cf.label());
-
-                    fields[fields.length - 1] = caseViewField;
-                    caseViewTab.setFields(fields);
-                    caseViewTabs.put(tab, caseViewTab);
-                }
+            CaseField[] fields = convert(view.render(c));
+            for (CaseField caseViewField : fields) {
+                caseViewField.setOrder(i);
             }
-        }
 
-        CaseViewTab[] caseViewTabsArr = new CaseViewTab[1];
-        return caseViewTabs.values().toArray(caseViewTabsArr);
+            caseViewTab.setFields(fields);
+            tabs.add(caseViewTab);
+        }
+        return tabs.toArray(new CaseViewTab[0]);
     }
 
-    private static uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField
-    getCaseViewField(
-            ICase c,
-            java.lang.reflect.Field declaredField
-    ) {
-        String t = determineFieldType(declaredField);
-        if (t.equals("Complex")) {
-            try {
-                declaredField.setAccessible(true);
-                return mapComplexType(declaredField.get(c));
-            } catch (IllegalAccessException e) {
-                throw new RuntimeException(e);
-            }
-        }
-        if (t.equals("Unknown")) {
-            return null;
-        }
-        uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField caseViewField = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
-        FieldType fieldType = new FieldType();
-        fieldType.setType(determineFieldType(declaredField));
-        caseViewField.setFieldType(fieldType);
-        ObjectMapper m = new ObjectMapper();
-        try {
-            declaredField.setAccessible(true);
-            caseViewField.setValue(m.valueToTree(declaredField.get(c)));
-        } catch (IllegalAccessException e) {
-            throw new RuntimeException(e);
-        }
-        return caseViewField;
-    }
-
-    private static String determineFieldType(java.lang.reflect.Field declaredField) {
-        switch (declaredField.getType().getSimpleName()) {
+    public static String determineFieldType(Class c) {
+        switch (c.getSimpleName()) {
             case "String":
                 return "Text";
             case "Integer":
             case "Long":
+            case "int":
                 return "Number";
+            case "LocalDate":
+            case "LocalDateTime":
+            case "Date":
+                return "Date";
         }
-        if (declaredField.getAnnotation(ComplexType.class) != null) {
-            return "Complex";
+        if (c.isEnum()) {
+            return "Text";
         }
-        return "Unknown";
+        if (Collection.class.isAssignableFrom(c)) {
+            return "Collection";
+        }
+        return "Complex";
     }
 
-    private static FieldType getFieldType(java.lang.reflect.Field field) {
+
+    public static FieldType getFieldType(Class c) {
         FieldType type = new FieldType();
-        String typeId = determineFieldType(field);
+        String typeId = determineFieldType(c);
         type.setId(typeId);
         type.setType(typeId);
         return type;
     }
 
-    public static uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField mapComplexType(Object instance) {
-        uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField result = new uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField();
+    private static FieldType getFieldType(java.lang.reflect.Field field) {
+        FieldType type = getFieldType(field.getType());
+        if (field.getAnnotation(ComplexType.class) != null) {
+            type.setType("Complex");
+        }
+        return type;
+    }
+
+    public static CaseField mapComplexType(Object instance) {
+        CaseField result = new CaseField();
         FieldType type = new FieldType();
         type.setType("Complex");
         result.setFieldType(type);
         List<CaseField> complexFields = Lists.newArrayList();
         type.setComplexFields(complexFields);
         for (java.lang.reflect.Field field : instance.getClass().getDeclaredFields()) {
-            FieldType fieldType = getFieldType(field);
-            if (fieldType.getType().equals("Unknown")) {
+            if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
             field.setAccessible(true);
-            Object value = null;
+            Object value;
             try {
                 value = field.get(instance);
             } catch (IllegalAccessException e) {
                 throw new RuntimeException(e);
             }
-            CaseField f = new CaseField();
+
+            CaseField child = convert(field.getType(), value);
+            child.setId(field.getName());
             FieldLabel label = field.getAnnotation(FieldLabel.class);
             if (null != label) {
-                f.setLabel(label.value());
+                child.setLabel(label.value());
             }
-            f.setFieldType(fieldType);
-            f.setId(field.getName());
-            if (fieldType.getType().equals("Complex")) {
-                uk.gov.hmcts.ccd.domain.model.aggregated.CaseViewField complex = mapComplexType(value);
-
-                FieldType cType = new FieldType();
-                cType.setId(field.getName());
-                cType.setType("Complex");
-                cType.setComplexFields(complex.getFieldType().getComplexFields());
-                f.setFieldType(cType);
-            } else {
-                f.setValue(new ObjectMapper().valueToTree(value));
-            }
-            complexFields.add(f);
+            complexFields.add(child);
         }
 
         return result;
+    }
+
+    public static CaseField mapCollection(Collection c) {
+        CaseField result = new CaseField();
+        FieldType type = new FieldType();
+        type.setType("Collection");
+        result.setFieldType(type);
+
+        if (c.isEmpty()) {
+            return result;
+        }
+
+        Object instance = c.iterator().next();
+        FieldType listType = getFieldType(instance.getClass());
+        type.setCollectionFieldType(listType);
+        if (listType.getType().equals("Complex")) {
+            CaseField cf = mapComplexType(instance);
+            type.getCollectionFieldType().setComplexFields(cf.getFieldType().getComplexFields());
+        }
+        List<CCDCollectionEntry> entries = Lists.newArrayList();
+
+        int t = 1;
+        for (Object o : c) {
+            entries.add(new CCDCollectionEntry(String.valueOf(t++), o));
+        }
+        result.setValue(mapper.valueToTree(entries));
+
+        return result;
+    }
+
+
+    public static CaseField[] convert(Collection<Object> values) {
+        return values.stream().map(ReflectionUtils::convert).toArray(CaseField[]::new);
+    }
+
+    public static CaseField convert(Class type, Object value) {
+        CaseField result;
+        String typeName = determineFieldType(type);
+        if (PRIMITIVES.contains(typeName)) {
+            result = new CaseField();
+            result.setFieldType(ReflectionUtils.getFieldType(type));
+            if (value != null) {
+                result.setValue(ReflectionUtils.mapper.valueToTree(value));
+            }
+        } else if (typeName.equals("Collection")) {
+            result = ReflectionUtils.mapCollection((Collection) value);
+        } else {
+            result = ReflectionUtils.mapComplexType(value);
+        }
+        if (value != null) {
+            FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);
+            if (label != null) {
+                result.setLabel(label.value());
+            }
+        }
+        return result;
+    }
+    public static CaseField convert(Object value) {
+        return convert(value.getClass(), value);
     }
 }
