@@ -30,7 +30,7 @@ public class ViewGeneratorTest {
         FakeView view = new FakeView();
         FakeCase fakeCase = new FakeCase("A", "B");
         List<Object> fields = view.render(fakeCase);
-        assertThat(fields.size()).isEqualTo(2);
+        assertThat(fields.size()).isEqualTo(3);
     }
 
     @Test

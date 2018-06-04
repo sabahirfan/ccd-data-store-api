@@ -14,6 +14,7 @@ public class FakeView implements ICaseView<FakeCase> {
 
     public List<Object> render(FakeCase theCase) {
         return Lists.newArrayList(
+            null,
             theCase.getCaseId(),
             theCase.getParty()
         );
