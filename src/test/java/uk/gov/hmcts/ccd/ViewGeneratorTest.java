@@ -95,10 +95,10 @@ public class ViewGeneratorTest {
         WithNumbers h = new WithNumbers();
         CaseField s = ReflectionUtils.convert(h);
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
-        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Number");
-        assertThat(s.getFieldType().getComplexFields().get(1).getFieldType().getType()).isEqualTo("Number");
-        assertThat(s.getFieldType().getComplexFields().get(2).getFieldType().getType()).isEqualTo("Number");
-        assertThat(s.getFieldType().getComplexFields().get(2).getValue()).isEqualTo(1);
+
+        assertThat(s.getFieldType().getComplexFields().size()).isEqualTo(4);
+        assertThat(s.getFieldType().getComplexFields()).allSatisfy(x -> assertThat(x.getFieldType().getType()).isEqualTo("Number"));
+        assertThat(s.getFieldType().getComplexFields()).allSatisfy(x -> assertThat(x.getValue().toString()).isEqualTo("1"));
     }
 
     @Test

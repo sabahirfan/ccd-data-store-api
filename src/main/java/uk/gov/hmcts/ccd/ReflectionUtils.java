@@ -204,6 +204,7 @@ public class ReflectionUtils {
             case "long":
             case "int":
             case "BigDecimal":
+            case "BigInteger":
                 return "Number";
             case "LocalDate":
             case "LocalDateTime":
