@@ -250,12 +250,23 @@ public class ReflectionUtils {
         type.setType("Complex");
         result.setFieldType(type);
         List<CaseField> complexFields = Lists.newArrayList();
+        if (instance instanceof  Optional) {
+            Optional opt = (Optional) instance;
+            if (opt != null && opt.isPresent()) {
+                instance = ((Optional) instance).get();
+                clazz = instance.getClass();
+            }
+        }
         type.setComplexFields(complexFields);
         for (java.lang.reflect.Field field : getAllFields(clazz)) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
             if (instance == null) {
+                continue;
+            }
+
+            if (field.getAnnotation(CaseIgnore.class) != null) {
                 continue;
             }
 
