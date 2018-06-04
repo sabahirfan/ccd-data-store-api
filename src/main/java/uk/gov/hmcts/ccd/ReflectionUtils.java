@@ -182,7 +182,9 @@ public class ReflectionUtils {
             caseViewTab.setId(view.getTab());
             caseViewTab.setLabel(view.getTab());
 
-            CaseField[] fields = convert(view.render(c));
+            List objects = view.render(c);
+            objects.removeIf(Objects::isNull);
+            CaseField[] fields = convert(objects);
             for (CaseField caseViewField : fields) {
                 caseViewField.setOrder(i);
             }
