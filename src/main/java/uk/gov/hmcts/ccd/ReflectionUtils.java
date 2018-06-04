@@ -253,7 +253,7 @@ public class ReflectionUtils {
             if (instance == null) {
                 continue;
             }
-            
+
             field.setAccessible(true);
             Object value;
             try {
@@ -280,7 +280,7 @@ public class ReflectionUtils {
         type.setType("Collection");
         result.setFieldType(type);
 
-        if (c.isEmpty()) {
+        if (null == c || c.isEmpty()) {
             return result;
         }
 

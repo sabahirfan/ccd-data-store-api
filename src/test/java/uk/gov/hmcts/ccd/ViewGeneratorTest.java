@@ -126,6 +126,14 @@ public class ViewGeneratorTest {
     }
 
     @Test
+    public void handlesNullList() {
+        HasNullList h = new HasNullList();
+        CaseField s = ReflectionUtils.convert(h);
+        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
+        assertThat(s.getFieldType().getComplexFields().get(0).getFieldType().getType()).isEqualTo("Collection");
+    }
+
+    @Test
     public void serialisesDatesCorrectly() {
         LocalDate local = LocalDate.of(2009, 1, 1);
         CaseField field = ReflectionUtils.convert(local);
