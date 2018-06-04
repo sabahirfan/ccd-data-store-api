@@ -246,7 +246,7 @@ public class ReflectionUtils {
         result.setFieldType(type);
         List<CaseField> complexFields = Lists.newArrayList();
         type.setComplexFields(complexFields);
-        for (java.lang.reflect.Field field : clazz.getDeclaredFields()) {
+        for (java.lang.reflect.Field field : getAllFields(clazz)) {
             if (Modifier.isStatic(field.getModifiers())) {
                 continue;
             }
@@ -274,6 +274,19 @@ public class ReflectionUtils {
         return result;
     }
 
+    /**
+     * Get fields including in base classes.
+     */
+    private static List<java.lang.reflect.Field> getAllFields(Class clazz) {
+        List<java.lang.reflect.Field> result = Lists.newArrayList();
+        while (clazz != Object.class) {
+            java.lang.reflect.Field[] fields = clazz.getDeclaredFields();
+
+            result.addAll(Lists.newArrayList(fields));
+            clazz = clazz.getSuperclass();
+        }
+        return result;
+    }
     public static CaseField mapCollection(Collection c) {
         CaseField result = new CaseField();
         FieldType type = new FieldType();
