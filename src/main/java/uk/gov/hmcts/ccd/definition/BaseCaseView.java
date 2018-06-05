@@ -8,24 +8,21 @@ import java.util.Map;
 
 public abstract class BaseCaseView<T extends ICase> implements ICaseView<T> {
 
-    Map<Object, String> result = Maps.newHashMap();
+    private ICaseRenderer renderer;
 
     @Override
-    public final Map<Object, String> render(T theCase) {
-        result.clear();
-        if (null != theCase) {
-            onRender(theCase);
-        }
-        return result;
+    public final void render(ICaseRenderer renderer, T theCase) {
+        this.renderer = renderer;
+        onRender(theCase);
     }
 
     protected abstract void onRender(T theCase);
 
     protected void render(Object o, String label) {
-        result.put(o, label);
+        renderer.render(o, label);
     }
 
     protected void render(Object o) {
-        result.put(o, "");
+        renderer.render(o);
     }
 }

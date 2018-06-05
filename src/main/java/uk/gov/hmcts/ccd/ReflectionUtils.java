@@ -181,20 +181,17 @@ public class ReflectionUtils {
     public static CaseViewTab[] generateCaseViewTabs(ICase c, List<ICaseView> views) {
         List<CaseViewTab> tabs = Lists.newArrayList();
         int i = 0;
+
         for (ICaseView view : views) {
             CaseViewTab caseViewTab = new CaseViewTab();
             caseViewTab.setOrder(i++);
             caseViewTab.setId(view.getTab());
             caseViewTab.setLabel(view.getTab());
 
-            Map<Object, String> objects = view.render(c);
-            objects.remove(null);
-            CaseField[] fields = convert(objects);
-            for (CaseField caseViewField : fields) {
-                caseViewField.setOrder(i);
-            }
+            CaseRenderer renderer = new CaseRenderer();
+            view.render(renderer, c);
+            caseViewTab.setFields(renderer.getFields());
 
-            caseViewTab.setFields(fields);
             tabs.add(caseViewTab);
         }
         return tabs.toArray(new CaseViewTab[0]);
@@ -282,12 +279,18 @@ public class ReflectionUtils {
             }
 
             CaseField child = convert(field.getType(), value);
-            child.setId(field.getName());
-            FieldLabel label = field.getAnnotation(FieldLabel.class);
-            if (null != label) {
-                child.setLabel(label.value());
+            if (null != child) {
+                child.setId(field.getName());
+                FieldLabel label = field.getAnnotation(FieldLabel.class);
+                if (null != label) {
+                    child.setLabel(label.value());
+                }
+                complexFields.add(child);
             }
-            complexFields.add(child);
+        }
+
+        if (complexFields.isEmpty()) {
+            return null;
         }
 
         return result;
@@ -332,17 +335,6 @@ public class ReflectionUtils {
         result.setValue(mapper.valueToTree(entries));
 
         return result;
-    }
-
-
-    public static CaseField[] convert(Map<Object, String> valuesWithLabels) {
-        List<CaseField> result = Lists.newArrayList();
-        valuesWithLabels.forEach((key, value) -> {
-            CaseField field = convert(key.getClass(), key);
-            field.setLabel(value);
-            result.add(field);
-        });
-        return result.toArray(new CaseField[0]);
     }
 
     public static CaseField convert(Class type, Object value) {
