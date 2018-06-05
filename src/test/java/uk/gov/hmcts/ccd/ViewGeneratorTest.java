@@ -90,8 +90,11 @@ public class ViewGeneratorTest {
         assertThat(s.getFieldType().getType()).isEqualTo("Complex");
 
         assertThat(s.getFieldType().getComplexFields().size()).isEqualTo(4);
-        assertThat(s.getFieldType().getComplexFields()).allSatisfy(x -> assertThat(x.getFieldType().getType()).isEqualTo("Number"));
-        assertThat(s.getFieldType().getComplexFields()).allSatisfy(x -> assertThat(x.getValue().toString()).isEqualTo("1"));
+        for (CaseField caseField : s.getFieldType().getComplexFields()) {
+
+            assertThat(caseField.getFieldType().getType()).isEqualTo("Number");
+            assertThat(caseField.getValue().toString()).isEqualTo("1");
+        }
     }
 
     @Test
