@@ -16,6 +16,7 @@ import uk.gov.hmcts.ccd.types.model.FakeView;
 import java.time.LocalDate;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -24,8 +25,8 @@ public class ViewGeneratorTest {
     public void extractsFields() {
         FakeView view = new FakeView();
         FakeCase fakeCase = new FakeCase("A", "B");
-        List<Object> fields = view.render(fakeCase);
-        assertThat(fields.size()).isEqualTo(3);
+        Map<Object, String> fields = view.render(fakeCase);
+        assertThat(fields.size()).isEqualTo(2);
     }
 
     @Test
