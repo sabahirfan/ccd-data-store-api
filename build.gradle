@@ -16,8 +16,6 @@ buildscript {
 plugins {
     id 'application'
     id 'io.spring.dependency-management' version '1.0.5.RELEASE'
-//    id 'org.springframework.boot' version '1.5.9.RELEASE'
-    id 'org.springframework.boot' version '2.0.1.RELEASE'
     id 'com.github.ben-manes.versions' version '0.17.0'
     id 'org.sonarqube' version '2.6.2'
     id 'jacoco'
@@ -31,7 +29,6 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'application'
 apply plugin: 'idea'
-apply plugin: 'org.springframework.boot'
 apply plugin: 'org.sonarqube'
 apply plugin: 'jsonschema2pojo'
 apply plugin: 'jacoco'
@@ -54,6 +51,8 @@ dependencyUpdates.resolutionStrategy = {
         }
     }
 }
+
+ext { springBootVersion = '2.0.2.RELEASE' }
 
 dependencyCheck {
     // Specifies if the build should be failed if a CVSS score above a specified level is identified.
@@ -511,3 +510,6 @@ def timestamp() {
 // for cnp pipeline
 task dependencyCheck(dependsOn: dependencyCheckAnalyze)
 
+dependencyManagement {
+    imports { mavenBom("org.springframework.boot:spring-boot-dependencies:${springBootVersion}") }
+}
