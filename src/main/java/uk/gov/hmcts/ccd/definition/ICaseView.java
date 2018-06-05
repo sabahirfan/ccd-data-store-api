@@ -7,5 +7,5 @@ import java.util.Map;
 
 public interface ICaseView<T extends ICase> {
     String getTab();
-    Map<Object, String> render(T theCase);
+    void render(ICaseRenderer renderer, T theCase);
 }

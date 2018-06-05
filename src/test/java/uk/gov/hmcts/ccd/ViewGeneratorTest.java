@@ -22,14 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ViewGeneratorTest {
     @Test
-    public void extractsFields() {
-        FakeView view = new FakeView();
-        FakeCase fakeCase = new FakeCase("A", "B");
-        Map<Object, String> fields = view.render(fakeCase);
-        assertThat(fields.size()).isEqualTo(2);
-    }
-
-    @Test
     public void convertsString() {
         CaseField field = ReflectionUtils.convert("hello");
         assertThat(field.getFieldType().getType()).isEqualTo("Text");
@@ -103,11 +95,10 @@ public class ViewGeneratorTest {
     }
 
     @Test
-    public void handlesNullSubtype() {
+    public void doesNotRenderEmptyComplex() {
         HasNullComplexChild h = new HasNullComplexChild();
         CaseField s = ReflectionUtils.convert(h);
-        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
-        assertThat(s.getFieldType().getComplexFields()).isEmpty();
+        assertThat(s).isNull();
     }
 
     @Test
@@ -130,8 +121,7 @@ public class ViewGeneratorTest {
     public void handlesNullList() {
         HasNullList h = new HasNullList();
         CaseField s = ReflectionUtils.convert(h);
-        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
-        assertThat(s.getFieldType().getComplexFields()).isEmpty();
+        assertThat(s).isNull();
     }
 
     @Test
@@ -148,8 +138,7 @@ public class ViewGeneratorTest {
     public void handlesInterfaces() {
         HasInterfaceType h = new HasInterfaceType();
         CaseField s = ReflectionUtils.convert(h);
-        assertThat(s.getFieldType().getType()).isEqualTo("Complex");
-        assertThat(s.getFieldType().getComplexFields().size()).isEqualTo(1);
+        assertThat(s).isNull();
     }
 
     @Test
