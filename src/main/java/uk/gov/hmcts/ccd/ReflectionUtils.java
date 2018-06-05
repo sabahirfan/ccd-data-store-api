@@ -351,7 +351,7 @@ public class ReflectionUtils {
         } else {
             result = ReflectionUtils.mapComplexType(type, value);
         }
-        if (value != null) {
+        if (value != null && result != null) {
             FieldLabel label = value.getClass().getAnnotation(FieldLabel.class);
             if (label != null) {
                 result.setLabel(label.value());
