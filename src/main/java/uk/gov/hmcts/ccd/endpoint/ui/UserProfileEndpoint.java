@@ -18,14 +18,28 @@ public class UserProfileEndpoint {
     @ApiResponse(code = 200, message = "User default settings")
     public UserProfile getUserProfile(@RequestHeader(value = AUTHORIZATION, defaultValue = "fake") final String authHeader) {
         UserProfile profile = new UserProfile();
-        JurisdictionDisplayProperties prop = new JurisdictionDisplayProperties();
-        prop.setId("RHUBARB");
-        prop.setName("RHUBARB");
-        prop.setDescription("Some description");
+        JurisdictionDisplayProperties rhubarbJurisdiction = new JurisdictionDisplayProperties();
+        rhubarbJurisdiction.setId("RHUBARB");
+        rhubarbJurisdiction.setName("RHUBARB");
+        rhubarbJurisdiction.setDescription("http://localhost:3453");
+
+        JurisdictionDisplayProperties sscsJurisdiction = new JurisdictionDisplayProperties();
+        sscsJurisdiction.setId("SSCS");
+        sscsJurisdiction.setName("SSCS");
+        sscsJurisdiction.setDescription("http://localhost:3454");
+
+        JurisdictionDisplayProperties cmcJurisdiction = new JurisdictionDisplayProperties();
+        cmcJurisdiction.setId("CMC");
+        cmcJurisdiction.setName("CMC");
+        cmcJurisdiction.setDescription("http://localhost:4400");
+
         JurisdictionDisplayProperties[] jurs = new JurisdictionDisplayProperties[] {
-                prop
+                rhubarbJurisdiction,
+                sscsJurisdiction,
+                cmcJurisdiction
         };
         profile.setJurisdictions(jurs);
+
         User user = new User();
         profile.setUser(user);
         IDAMProperties idam = new IDAMProperties();
