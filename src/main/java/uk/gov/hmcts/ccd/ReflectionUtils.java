@@ -187,8 +187,8 @@ public class ReflectionUtils {
             caseViewTab.setId(view.getTab());
             caseViewTab.setLabel(view.getTab());
 
-            List objects = view.render(c);
-            objects.removeIf(Objects::isNull);
+            Map<Object, String> objects = view.render(c);
+            objects.remove(null);
             CaseField[] fields = convert(objects);
             for (CaseField caseViewField : fields) {
                 caseViewField.setOrder(i);
@@ -335,8 +335,14 @@ public class ReflectionUtils {
     }
 
 
-    public static CaseField[] convert(Collection<Object> values) {
-        return values.stream().map(ReflectionUtils::convert).toArray(CaseField[]::new);
+    public static CaseField[] convert(Map<Object, String> valuesWithLabels) {
+        List<CaseField> result = Lists.newArrayList();
+        valuesWithLabels.forEach((key, value) -> {
+            CaseField field = convert(key.getClass(), key);
+            field.setLabel(value);
+            result.add(field);
+        });
+        return result.toArray(new CaseField[0]);
     }
 
     public static CaseField convert(Class type, Object value) {

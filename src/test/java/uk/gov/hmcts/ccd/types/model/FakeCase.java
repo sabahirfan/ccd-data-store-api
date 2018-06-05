@@ -10,11 +10,11 @@ public class FakeCase implements ICase {
     // Annotated fields are editable in the CCD UI.
     @CaseListField(label = "Defendant Name")
     @CaseSearchableField(label = "Defendant name", order = 2)
-    private String defendantName;
+    private String defendantName = "Peter";
 
     @CaseSearchableField(label = "Prosecutor name", order = 1)
     @CaseListField(label = "Prosecutor Name")
-    private String prosecutorName;
+    private String prosecutorName = "Paul";
 
     @ComplexType
     private Party party = new Party();

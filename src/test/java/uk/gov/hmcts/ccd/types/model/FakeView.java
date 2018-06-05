@@ -1,22 +1,20 @@
 package uk.gov.hmcts.ccd.types.model;
 
 import com.google.common.collect.Lists;
-import uk.gov.hmcts.ccd.definition.FieldRenderer;
+import uk.gov.hmcts.ccd.definition.BaseCaseView;
 import uk.gov.hmcts.ccd.definition.ICaseView;
 
-import java.util.List;
-import java.util.Set;
+import java.util.Map;
 
-public class FakeView implements ICaseView<FakeCase> {
+public class FakeView extends BaseCaseView<FakeCase> {
     public String getTab() {
         return "tab2";
     }
 
-    public List<Object> render(FakeCase theCase) {
-        return Lists.newArrayList(
-            null,
-            theCase.getCaseId(),
-            theCase.getParty()
-        );
+    @Override
+    protected void onRender(FakeCase theCase) {
+        render(null);
+        render(theCase.getCaseId());
+        render(theCase.getParty());
     }
 }
